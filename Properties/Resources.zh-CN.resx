@@ -1,0 +1,295 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AdbLose" xml:space="preserve">
+    <value>ADB 丢失</value>
+  </data>
+  <data name="AddDevice" xml:space="preserve">
+    <value>添加设备</value>
+  </data>
+  <data name="BLOCK" xml:space="preserve">
+    <value>块设备</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="CHAR" xml:space="preserve">
+    <value>字符设备</value>
+  </data>
+  <data name="CONNECTED" xml:space="preserve">
+    <value>已连接</value>
+  </data>
+  <data name="ConnectFailed" xml:space="preserve">
+    <value>连接失败或丢失</value>
+  </data>
+  <data name="DeviceNum" xml:space="preserve">
+    <value>设备号</value>
+  </data>
+  <data name="DIR" xml:space="preserve">
+    <value>文件夹</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="FILE" xml:space="preserve">
+    <value>文件</value>
+  </data>
+  <data name="FileExist" xml:space="preserve">
+    <value>已存在同名文件(夹)</value>
+  </data>
+  <data name="FileManager" xml:space="preserve">
+    <value>文件管理器</value>
+  </data>
+  <data name="FileName" xml:space="preserve">
+    <value>文件名</value>
+  </data>
+  <data name="Group" xml:space="preserve">
+    <value>组</value>
+  </data>
+  <data name="Label_Address" xml:space="preserve">
+    <value>地址(_A):</value>
+  </data>
+  <data name="Label_Port" xml:space="preserve">
+    <value>端口(可选)(_P):</value>
+  </data>
+  <data name="Link" xml:space="preserve">
+    <value>链接</value>
+  </data>
+  <data name="LINK_FILE" xml:space="preserve">
+    <value>链接文件</value>
+  </data>
+  <data name="Menu_About" xml:space="preserve">
+    <value>关于(_A)</value>
+  </data>
+  <data name="Menu_AddDevice" xml:space="preserve">
+    <value>添加设备(_A)</value>
+  </data>
+  <data name="Menu_CheckUpdate" xml:space="preserve">
+    <value>检查更新(_C)</value>
+  </data>
+  <data name="Menu_Device" xml:space="preserve">
+    <value>设备(_D)</value>
+  </data>
+  <data name="Menu_Disconnect" xml:space="preserve">
+    <value>断开连接(_D)</value>
+  </data>
+  <data name="Menu_ForcedReflush" xml:space="preserve">
+    <value>强制刷新(_F)</value>
+  </data>
+  <data name="Menu_Help" xml:space="preserve">
+    <value>帮助(_H)</value>
+  </data>
+  <data name="Menu_HowToUse" xml:space="preserve">
+    <value>如何使用(_U)</value>
+  </data>
+  <data name="Menu_Reflush" xml:space="preserve">
+    <value>刷新(_R)</value>
+  </data>
+  <data name="Message_AddDeviceTip" xml:space="preserve">
+    <value>请在地址处填写您的设备的主机名或 IP 地址, 端口默认为 5555。</value>
+  </data>
+  <data name="Message_CanNoDisconnect" xml:space="preserve">
+    <value>此设备不允许通过该发生断开连接</value>
+  </data>
+  <data name="Message_DeleteConfirm" xml:space="preserve">
+    <value>你确定要永久地删除所选文件(夹)吗?</value>
+    <comment>？</comment>
+  </data>
+  <data name="Message_NoAddressTip" xml:space="preserve">
+    <value>请输入地址!</value>
+  </data>
+  <data name="Model" xml:space="preserve">
+    <value>设备型号</value>
+  </data>
+  <data name="New" xml:space="preserve">
+    <value>新</value>
+  </data>
+  <data name="NewDir" xml:space="preserve">
+    <value>新建文件夹</value>
+  </data>
+  <data name="NewFile" xml:space="preserve">
+    <value>新建文件</value>
+  </data>
+  <data name="NoSuchFile" xml:space="preserve">
+    <value>文件(夹)不存在</value>
+  </data>
+  <data name="OFFLINE" xml:space="preserve">
+    <value>离线</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="OperationFailed" xml:space="preserve">
+    <value>操作失败</value>
+  </data>
+  <data name="PathError" xml:space="preserve">
+    <value>无法打开该文件或路径</value>
+  </data>
+  <data name="PermissionDenied" xml:space="preserve">
+    <value>权限不足</value>
+  </data>
+  <data name="PIPE" xml:space="preserve">
+    <value>管道文件</value>
+  </data>
+  <data name="Pression" xml:space="preserve">
+    <value>权限</value>
+  </data>
+  <data name="ReadOnly" xml:space="preserve">
+    <value>只读</value>
+  </data>
+  <data name="Select_Devices" xml:space="preserve">
+    <value>选择设备</value>
+  </data>
+  <data name="SeriousError" xml:space="preserve">
+    <value>严重错误</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>大小</value>
+  </data>
+  <data name="SOCKET" xml:space="preserve">
+    <value>套接口文件</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>状态</value>
+  </data>
+  <data name="Time" xml:space="preserve">
+    <value>时间</value>
+  </data>
+  <data name="Tip" xml:space="preserve">
+    <value>提示</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>类型</value>
+  </data>
+  <data name="UNAUTHORIZED" xml:space="preserve">
+    <value>未授权</value>
+  </data>
+  <data name="Unknow" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="UsbSerialNum" xml:space="preserve">
+    <value>设备名</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>用户</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>警告</value>
+  </data>
+</root>

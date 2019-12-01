@@ -1,0 +1,130 @@
+﻿<Window x:Class="Android_Transfer_Protocol.FileManager"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Android_Transfer_Protocol.Properties"
+        mc:Ignorable="d"
+        Title="{x:Static local:Resources.FileManager}">
+    <Window.Resources>
+        <RoutedCommand x:Key="CancelPath"/>
+        <RoutedCommand x:Key="CreateDir"/>
+        <RoutedCommand x:Key="CreateFile"/>
+        <RoutedCommand x:Key="Delete"/>
+        <RoutedCommand x:Key="Enter"/>
+        <RoutedCommand x:Key="Esc"/>
+        <RoutedCommand x:Key="FocusPath"/>
+        <RoutedCommand x:Key="Last"/>
+        <RoutedCommand x:Key="Next"/>
+        <RoutedCommand x:Key="OpenPathDir"/>
+        <RoutedCommand x:Key="Reflush"/>
+        <RoutedCommand x:Key="Rename"/>
+        <RoutedCommand x:Key="Upper"/>
+    </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="{StaticResource CancelPath}"    Executed="CancelPath_Executed"/>
+        <CommandBinding Command="{StaticResource CreateDir}"     Executed="CreateDir_Executed"/>
+        <CommandBinding Command="{StaticResource CreateFile}"    Executed="CreateFile_Executed"/>
+        <CommandBinding Command="{StaticResource Delete}"        Executed="Delete_Executed"/>
+        <CommandBinding Command="{StaticResource Enter}"         Executed="Enter_Executed"/>
+        <CommandBinding Command="{StaticResource Esc}"           Executed="Esc_Executed"/>
+        <CommandBinding Command="{StaticResource FocusPath}"     Executed="FocusPath_Executed"/>
+        <CommandBinding Command="{StaticResource Last}"          Executed="Last_Executed"/>
+        <CommandBinding Command="{StaticResource Next}"          Executed="Next_Executed"/>
+        <CommandBinding Command="{StaticResource OpenPathDir}"   Executed="OpenPathDir_Executed"/>
+        <CommandBinding Command="{StaticResource Reflush}"       Executed="Reflush_Executed"/>
+        <CommandBinding Command="{StaticResource Rename}"        Executed="Rename_Executed"/>
+        <CommandBinding Command="{StaticResource Upper}"         Executed="Upper_Executed"/>
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Key="F5" Command="{StaticResource Reflush}"/>
+        <KeyBinding Modifiers="Ctrl" Key="R" Command="{StaticResource Reflush}"/>
+        <KeyBinding Key="F6" Command="{StaticResource FocusPath}"/>
+        <KeyBinding Modifiers="Ctrl" Key="L" Command="{StaticResource FocusPath}"/>
+    </Window.InputBindings>
+    <Grid>
+        <DockPanel>
+            <DockPanel DockPanel.Dock="Top">
+                <Button x:Name="UpperButton" Content="  ↑  " Command="{StaticResource Upper}"/>
+                <TextBox x:Name="PathBar" GotFocus="PathBar_GotFocus" LostFocus="PathBar_LostFocus" PreviewMouseLeftButtonDown="PathBar_PreviewMouseLeftButtonDown">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{StaticResource OpenPathDir}"/>
+                        <KeyBinding Key="Esc"   Command="{StaticResource CancelPath}"/>
+                    </TextBox.InputBindings>
+                </TextBox>
+            </DockPanel>
+            <DataGrid 
+                x:Name="FilesList" 
+                AutoGenerateColumns="False" 
+                GridLinesVisibility="None" 
+                HeadersVisibility="Column"
+                CanUserAddRows="False"
+                AllowDrop="True"
+                CanUserDeleteRows="False"
+                BorderThickness="0"
+                SelectedCellsChanged="FilesList_SelectedCellsChanged"
+                PreviewMouseDown="FilesList_PreviewMouseDown" 
+                BeginningEdit="FilesList_BeginningEdit"
+                CellEditEnding="FilesList_CellEditEnding">
+                <DataGrid.InputBindings>
+                    <KeyBinding Modifiers="Alt" Key="Up" Command="{StaticResource Upper}"/>
+                    <KeyBinding Key="Backspace" Command="{StaticResource Upper}"/>
+                    <KeyBinding Modifiers="Alt" Key="Left" Command="{StaticResource Last}"/>
+                    <KeyBinding Modifiers="Alt" Key="Right" Command="{StaticResource Next}"/>
+                    <KeyBinding Modifiers="Ctrl" Key="N" Command="{StaticResource CreateFile}"/>
+                    <KeyBinding Modifiers="Ctrl+Shift" Key="N" Command="{StaticResource CreateDir}"/>
+                    <KeyBinding Key="Enter" Command="{StaticResource Enter}"/>
+                    <KeyBinding Key="F2" Command="{StaticResource Rename}"/>
+                    <KeyBinding Key="Delete" Command="{StaticResource Delete}"/>
+                    <KeyBinding Key="Esc" Command="{StaticResource Esc}"/>
+                </DataGrid.InputBindings>
+                <DataGrid.Resources>
+                    <Style TargetType="DataGridRow">
+                        <EventSetter Event="MouseDoubleClick" Handler="DataGridRow_MouseDoubleClick"/>
+                    </Style>
+                    <Style TargetType="DataGridCell">
+                        <EventSetter Event="PreviewMouseLeftButtonDown" Handler="DataGridCell_PreviewMouseLeftButtonDown"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Type}">
+                                <Setter Property="Focusable" Value="False"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Link}">
+                                <Setter Property="Focusable" Value="False"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Pression}">
+                                <Setter Property="Focusable" Value="False"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.User}">
+                                <Setter Property="Focusable" Value="False"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Group}">
+                                <Setter Property="Focusable" Value="False"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.DeviceNum}">
+                                <Setter Property="Focusable" Value="False"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Size}">
+                                <Setter Property="Focusable" Value="False"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Time}">
+                                <Setter Property="Focusable" Value="False"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="{x:Static local:Resources.FileName}" Binding="{Binding Name, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" x:Name="FilesNameCol" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="{x:Static local:Resources.Type}" Binding="{Binding Type}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="{x:Static local:Resources.DeviceNum}" Binding="{Binding DeviceNum}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="{x:Static local:Resources.Link}" Binding="{Binding Link}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="{x:Static local:Resources.Pression}" Binding="{Binding Pression}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="{x:Static local:Resources.User}" Binding="{Binding User}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="{x:Static local:Resources.Group}" Binding="{Binding Group}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="{x:Static local:Resources.Size}" Binding="{Binding Size}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="{x:Static local:Resources.Time}" Binding="{Binding DateTime}" IsReadOnly="True"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </DockPanel>
+    </Grid>
+</Window>
