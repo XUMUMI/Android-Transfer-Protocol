@@ -11,17 +11,17 @@
         WindowStyle="ToolWindow" SizeToContent="Width">
     <Window.Resources>
         <RoutedCommand x:Key="AddDevice"/>
-        <RoutedCommand x:Key="ForceReflush"/>
-        <RoutedCommand x:Key="Reflush"/>
-        <RoutedCommand x:Key="Selected"/>
         <RoutedCommand x:Key="Disconnect"/>
+        <RoutedCommand x:Key="ForceReflush"/>
+        <RoutedCommand x:Key="Open"/>
+        <RoutedCommand x:Key="Reflush"/>
     </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="{StaticResource AddDevice}" Executed="Add_Device_Execute"/>
-        <CommandBinding Command="{StaticResource ForceReflush}" Executed="Force_Reflush_Execute"/>
-        <CommandBinding Command="{StaticResource Reflush}" Executed="Reflush_Devices_List_Execute"/>
-        <CommandBinding Command="{StaticResource Selected}" Executed="Selected_Device_Execute"/>
         <CommandBinding Command="{StaticResource Disconnect}" Executed="Disconnect_Execute"/>
+        <CommandBinding Command="{StaticResource ForceReflush}" Executed="Force_Reflush_Execute"/>
+        <CommandBinding Command="{StaticResource Open}" Executed="OpenDevice_Execute"/>
+        <CommandBinding Command="{StaticResource Reflush}" Executed="Reflush_Devices_List_Execute"/>
     </Window.CommandBindings>
     <Window.InputBindings>
         <KeyBinding Modifiers="Ctrl" Key="N" Command="{StaticResource AddDevice}"/>
@@ -61,7 +61,7 @@
                       SelectedCellsChanged="DevicesList_SelectedCellsChanged"
                       MouseDown="DevicesList_MouseDown">
                 <DataGrid.InputBindings>
-                    <KeyBinding Key="Enter" Command="{StaticResource Selected}"/>
+                    <KeyBinding Key="Enter" Command="{StaticResource Open}"/>
                     <KeyBinding Key="Delete" Command="{StaticResource Disconnect}"/>
                 </DataGrid.InputBindings>
                 <DataGrid.Resources>

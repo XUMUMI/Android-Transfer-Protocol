@@ -140,6 +140,7 @@ namespace Android_Transfer_Protocol
         private static int Step = 0;
 
         /* 缓存 */
+        private static readonly Dictionary<string, ObservableCollection<AFile>> FilesListCache = new Dictionary<string, ObservableCollection<AFile>>();
         private static AFile FileCache;
         private static string[] FilesStringList;
         private static string[] FileBuf;
@@ -148,6 +149,8 @@ namespace Android_Transfer_Protocol
 
         /**<summary>检测路径是否存在</summary>**/
         public static bool CheckPath(string path = "/") => !string.IsNullOrEmpty(Ls(path)[RESULT]);
+
+        public static void FlushCache(string path) => FilesListCache.Remove(path);
 
         /**<summary>根据字符返回文件类型, 可能返回 null</summary>**/
         private static string Char2FileType(char e)
@@ -240,21 +243,24 @@ namespace Android_Transfer_Protocol
             return FileCache;
         }
 
-        /**<summary>传入一个已初始化的文件列表和路径, 该函数可以对文件列表进行赋值, 如有错误将返回错误信息</summary>**/
-        public static string GetFilesList(ObservableCollection<AFile> files_list, string path = "/")
+        /**<summary>传入一个文件列表和路径, 该函数可以对文件列表进行赋值, 如有错误将返回错误信息</summary>**/
+        public static string GetFilesList(ref ObservableCollection<AFile> files_list, string path = "/")
         {
-            if (files_list is null) throw new ArgumentNullException(nameof(files_list));
             /* 路径不能访问直接返回错误 */
             if (!CheckPath(path)) return PATH_ERROR;
-
-            files_list.Clear();
             Path = path;
+            /* 是否存在缓存 */
+            if (FilesListCache.ContainsKey(path))
+            {
+                files_list = FilesListCache[path];
+                return null;
+            }
+            files_list = FilesListCache[path] = new ObservableCollection<AFile>();
             /* 读取结果准备处理 */
             ExecResult = Ls(Path);
             /* 切割字符串存到列表 */
-
-            /* 批量处理字符串并存入数据表 */
             FilesStringList = ExecResult[ERROR].Split('\n');
+            /* 批量处理字符串并存入数据表 */
             foreach (string file in FilesStringList)
             {
                 if (ErrString2Afile(file) != null) files_list.Add(FileCache);
@@ -272,9 +278,9 @@ namespace Android_Transfer_Protocol
         private static void CleanNextHistory(int start_index) => PathHistory.RemoveRange(start_index, PathHistory.Count - start_index);
 
         /**<summary>打开文件列表, 传入一个已初始化的文件列表和路径, 该函数可以对文件列表进行赋值, 如有错误将返回错误信息</summary>**/
-        public static string OpenFilesList(ObservableCollection<AFile> files_list, string path = "/")
+        public static string OpenFilesList(ref ObservableCollection<AFile> files_list, string path = "/")
         {
-            string error_message = GetFilesList(files_list, path);
+            string error_message = GetFilesList(ref files_list, path);
             if (!string.IsNullOrEmpty(error_message)) return error_message;
 
             if (PathHistory.Count == 0 || PathHistory[Step - 1] != path)
@@ -286,32 +292,32 @@ namespace Android_Transfer_Protocol
         }
 
         /**<summary>获取上一个文件列表, 传入一个已初始化的文件列表, 该函数可以对文件列表进行赋值, 如有错误将返回错误信息</summary>**/
-        public static string LastFileList(ObservableCollection<AFile> files_list)
+        public static string LastFileList(ref ObservableCollection<AFile> files_list)
         {
             string error_message = null;
             if (Step > 1)
             {
-                error_message = GetFilesList(files_list, PathHistory[--Step - 1]);
+                error_message = GetFilesList(ref files_list, PathHistory[--Step - 1]);
                 if (error_message != null)
                 {
                     CleanNextHistory(Step - 1);
-                    error_message = LastFileList(files_list);
+                    error_message = LastFileList(ref files_list);
                 }
             }
             return error_message;
         }
 
         /**<summary>获取上一个文件列表, 传入一个已初始化的文件列表, 该函数可以对文件列表进行赋值, 如有错误将返回错误信息</summary>**/
-        public static string NextFileList(ObservableCollection<AFile> files_list)
+        public static string NextFileList(ref ObservableCollection<AFile> files_list)
         {
             string error_message = null;
             if (Step < PathHistory.Count)
             {
-                error_message = GetFilesList(files_list, PathHistory[Step++]);
+                error_message = GetFilesList(ref files_list, PathHistory[Step++]);
                 if (error_message != null)
                 {
                     CleanNextHistory(--Step);
-                    error_message = NextFileList(files_list);
+                    error_message = NextFileList(ref files_list);
                 }
             }
             return error_message;
@@ -344,7 +350,7 @@ namespace Android_Transfer_Protocol
         /**<summary>重命名</summary>**/
         public static string Rename(string new_name, string old_name)
         {
-            if (CheckPath(new_name)) return Properties.Resources.FileExist;
+            if (CheckPath(Path + new_name)) return Properties.Resources.FileExist;
             else return Mv(Path + new_name, Path + old_name);
         }
 

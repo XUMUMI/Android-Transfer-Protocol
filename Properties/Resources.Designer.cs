@@ -79,6 +79,15 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Android Transfer Protocol 的本地化字符串。
+        /// </summary>
+        public static string ATP {
+            get {
+                return ResourceManager.GetString("ATP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 块设备 的本地化字符串。
         /// </summary>
         public static string BLOCK {
@@ -165,15 +174,6 @@ namespace Android_Transfer_Protocol.Properties {
         public static string FileExist {
             get {
                 return ResourceManager.GetString("FileExist", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 文件管理器 的本地化字符串。
-        /// </summary>
-        public static string FileManager {
-            get {
-                return ResourceManager.GetString("FileManager", resourceCulture);
             }
         }
         

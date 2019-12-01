@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -68,7 +69,7 @@ namespace Android_Transfer_Protocol
 
         /***** 选中设备 *****/
 
-        private void SelectedDevice()
+        private void OpenDevice()
         {
             if (CurrentDevice == null)
             {
@@ -91,7 +92,7 @@ namespace Android_Transfer_Protocol
             }
         }
         /**<summary>选中设备事件</summary>**/
-        private void Selected_Device_Execute(object sender, ExecutedRoutedEventArgs e) => SelectedDevice();
+        private void OpenDevice_Execute(object sender, ExecutedRoutedEventArgs e) => OpenDevice();
 
 
         /***** 断开连接 *****/
@@ -150,7 +151,7 @@ namespace Android_Transfer_Protocol
             /* 左键双击 */
             if (e.ChangedButton.Equals(MouseButton.Left))
             {
-                SelectedDevice();
+                OpenDevice();
             }
         }
     }

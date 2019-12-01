@@ -12,15 +12,14 @@ namespace Android_Transfer_Protocol
     /// </summary>
     public partial class FileManager : Window
     {
-        private readonly ObservableCollection<AFile> FilesListData = new ObservableCollection<AFile>();
-        private AFile CurrentFile = null;
+        private ObservableCollection<AFile> FilesListData;
+        private Dictionary<string, AFile> SelectedFiles = new Dictionary<string, AFile>();
 
         public FileManager()
         {
             InitializeComponent();
-            /* 绑定数据源 */
-            FilesList.ItemsSource = FilesListData;
-            Reflush();
+            Title = $"{Properties.Resources.ATP} | {Adb.Device.Model}";
+            ForceReflush();
         }
 
         /**<summary>检查连接状态</summary>**/
@@ -66,30 +65,40 @@ namespace Android_Transfer_Protocol
         {
             PathBar.Text = Adb.Path;
             if (ShowWarnMessage(message)) if (Check()) Reflush();
+            FilesList.ItemsSource = FilesListData;
             FilesList.Focus();
+            if(SelectedFiles.ContainsKey(Adb.Path)) Go2File(SelectedFiles[Adb.Path]);
         }
 
         /**<summary>打开目标路径</summary>**/
         private void OpenDir(string path)
         {
             if (path[path.Length - 1] != '/') path += '/'; 
-            LoadDir(Adb.OpenFilesList(FilesListData, path));
+            LoadDir(Adb.OpenFilesList(ref FilesListData, path));
         }
 
+        /**<summary>刷新渲染</summary>**/
         private void Reflush()
         {
-            OpenDir(Adb.Path);
+            FilesList.CommitEdit();
             FilesList.Items.Refresh();
+        }
+
+        /**<summary>刷新缓存</summary>**/
+        private void ForceReflush()
+        {
+            Adb.FlushCache(Adb.Path);
+            OpenDir(Adb.Path);
         }
 
         /**<summary>打开选中的文件夹</summary>**/
         private void OpenSelectedDir()
         {
-            if (CurrentFile == null) return;
+            if (!SelectedFiles.ContainsKey(Adb.Path)) return;
 
-            if (CurrentFile.Type.Equals(AFile.DIR) || CurrentFile.Type.Equals(AFile.LINK))
+            if (SelectedFiles[Adb.Path].Type.Equals(AFile.DIR) || SelectedFiles[Adb.Path].Type.Equals(AFile.LINK))
             {
-                OpenDir($"{Adb.Path}{CurrentFile.Name}/");
+                OpenDir($"{Adb.Path}{SelectedFiles[Adb.Path].Name}/");
             }
         }
 
@@ -99,7 +108,6 @@ namespace Android_Transfer_Protocol
         private void CancelSelectOrEdit()
         {
             if (FilesNameCol.IsReadOnly) FilesList.SelectedIndex = -1;
-
             FilesList.CancelEdit();
         }
 
@@ -110,21 +118,61 @@ namespace Android_Transfer_Protocol
             else FilesList.CancelEdit();
         }
 
+        /**<summary>编辑上一个文件名</summary>**/
+        private void EditLast_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (FilesList.SelectedIndex <= 0) return;
+            if (!FilesNameCol.IsReadOnly)
+            {
+                --FilesList.SelectedIndex;
+                BeginRename();
+            }
+            else--FilesList.SelectedIndex;
+        }
+
+        /**<summary>编辑下一个文件名</summary>**/
+        private void EditNext_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (!FilesNameCol.IsReadOnly)
+            {
+                ++FilesList.SelectedIndex;
+                BeginRename();
+            }
+            else ++FilesList.SelectedIndex;
+        }
+
+        /**<summary>跳转到文件所在位置</summary>**/
+        private void Go2File(AFile file)
+        {
+            if (file == null) return;
+            /* 选中文件 */
+            FilesList.SelectedItem = file;
+            /* 对焦单元格 */
+            FilesList.CurrentCell = new DataGridCellInfo(file, FilesNameCol);
+            /* 滚动至目标 */
+            FilesList.ScrollIntoView(file);
+        }
+
         /**<summary>取消选中</summary>**/
         private void Esc_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if (!FilesNameCol.IsReadOnly) CurrentFile.Name = NewName = OldName;
+            if (!FilesNameCol.IsReadOnly && SelectedFiles.ContainsKey(Adb.Path)) SelectedFiles[Adb.Path].Name = NewName = OldName;
             CancelSelectOrEdit();
         }
 
         /**<summary>刷新</summary>**/
         private void Reflush_Executed(object sender, ExecutedRoutedEventArgs e) => Reflush();
 
+        private void ForceReflush_Executed(object sender, ExecutedRoutedEventArgs e) => ForceReflush();
+
         /**<summary>选中内容发生变化</summary>**/
         private void FilesList_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
-            CurrentFile = FilesList.SelectedItem as AFile;
-            FilesList.CurrentCell = new DataGridCellInfo(CurrentFile, FilesNameCol);
+            if(FilesList.SelectedItem is AFile file)
+            {
+                SelectedFiles[Adb.Path] = file;
+                FilesList.CurrentCell = new DataGridCellInfo(file, FilesNameCol);
+            }
         }
 
         /**<summary>鼠标点击数据表</summary>**/
@@ -176,11 +224,11 @@ namespace Android_Transfer_Protocol
         private void Upper_Executed(object sender, ExecutedRoutedEventArgs e) => Upper();
 
         /**<summary>后退</summary>**/
-        private void Last() => LoadDir(Adb.LastFileList(FilesListData));
+        private void Last() => LoadDir(Adb.LastFileList(ref FilesListData));
         private void Last_Executed(object sender, ExecutedRoutedEventArgs e) => Last();
 
         /**<summary>前进</summary>**/
-        private void Next() => LoadDir(Adb.NextFileList(FilesListData));
+        private void Next() => LoadDir(Adb.NextFileList(ref FilesListData));
         private void Next_Executed(object sender, ExecutedRoutedEventArgs e) => Next();
 
 
@@ -236,7 +284,7 @@ namespace Android_Transfer_Protocol
                 return;
             }
             string error_message = EditingFile.Type.Equals(AFile.FILE) ? Adb.CreateFile(EditingFile.Name) : Adb.CreateDir(EditingFile.Name);
-            if (!ShowErrMessage(error_message)) Reflush();
+            if (!ShowErrMessage(error_message)) ForceReflush();
             else FilesListData.Remove(EditingFile);
         }
 
@@ -251,32 +299,27 @@ namespace Android_Transfer_Protocol
         private void Rename(AFile file)
         {
             /* 不接受空文件 */
-            if (file == null) return;
+            if (file == null || OldName == null) return;
             /* 文件名不接受斜杠 */
             NewName = file.Name.Replace("\\", "").Replace("/", "");
             /* 不接受空文件名 */
             if (string.IsNullOrEmpty(NewName)) file.Name = NewName = OldName;
             /* 同名无需操作 */
             if (NewName == OldName) return;
+
             string error_message = Adb.Rename(NewName, OldName);
             if (!ShowErrMessage(error_message)) file.Name = NewName;
             else file.Name = OldName;
+
             /* 清空新文件名缓存 */
             NewName = null;
+            Reflush();
         }
 
         /**<summary>开始重命名</summary>**/
         private void BeginRename(AFile file = null)
         {
-            if (file != null)
-            {
-                /* 选中文件 */
-                FilesList.SelectedItem = file;
-                /* 对焦单元格 */
-                FilesList.CurrentCell = new DataGridCellInfo(file, FilesNameCol);
-                /* 滚动至目标 */
-                FilesList.ScrollIntoView(file);
-            }
+            Go2File(file);
             FilesNameCol.IsReadOnly = false;
             FilesList.BeginEdit();
         }
@@ -315,7 +358,7 @@ namespace Android_Transfer_Protocol
             {
                 string error_message = Adb.Rm(files);
                 ShowWarnMessage(error_message);
-                Reflush();
+                ForceReflush();
             }
         }
 

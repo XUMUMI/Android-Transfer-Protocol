@@ -5,15 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Android_Transfer_Protocol.Properties"
         mc:Ignorable="d"
-        Title="{x:Static local:Resources.FileManager}">
+        Title="{x:Static local:Resources.ATP}">
     <Window.Resources>
         <RoutedCommand x:Key="CancelPath"/>
         <RoutedCommand x:Key="CreateDir"/>
         <RoutedCommand x:Key="CreateFile"/>
         <RoutedCommand x:Key="Delete"/>
+        <RoutedCommand x:Key="EditLast"/>
+        <RoutedCommand x:Key="EditNext"/>
         <RoutedCommand x:Key="Enter"/>
         <RoutedCommand x:Key="Esc"/>
         <RoutedCommand x:Key="FocusPath"/>
+        <RoutedCommand x:Key="ForceReflush"/>
         <RoutedCommand x:Key="Last"/>
         <RoutedCommand x:Key="Next"/>
         <RoutedCommand x:Key="OpenPathDir"/>
@@ -26,8 +29,11 @@
         <CommandBinding Command="{StaticResource CreateDir}"     Executed="CreateDir_Executed"/>
         <CommandBinding Command="{StaticResource CreateFile}"    Executed="CreateFile_Executed"/>
         <CommandBinding Command="{StaticResource Delete}"        Executed="Delete_Executed"/>
+        <CommandBinding Command="{StaticResource EditLast}"      Executed="EditLast_Executed"/>
+        <CommandBinding Command="{StaticResource EditNext}"      Executed="EditNext_Executed"/>
         <CommandBinding Command="{StaticResource Enter}"         Executed="Enter_Executed"/>
         <CommandBinding Command="{StaticResource Esc}"           Executed="Esc_Executed"/>
+        <CommandBinding Command="{StaticResource ForceReflush}"  Executed="ForceReflush_Executed"/>
         <CommandBinding Command="{StaticResource FocusPath}"     Executed="FocusPath_Executed"/>
         <CommandBinding Command="{StaticResource Last}"          Executed="Last_Executed"/>
         <CommandBinding Command="{StaticResource Next}"          Executed="Next_Executed"/>
@@ -37,10 +43,12 @@
         <CommandBinding Command="{StaticResource Upper}"         Executed="Upper_Executed"/>
     </Window.CommandBindings>
     <Window.InputBindings>
-        <KeyBinding Key="F5" Command="{StaticResource Reflush}"/>
-        <KeyBinding Modifiers="Ctrl" Key="R" Command="{StaticResource Reflush}"/>
-        <KeyBinding Key="F6" Command="{StaticResource FocusPath}"/>
-        <KeyBinding Modifiers="Ctrl" Key="L" Command="{StaticResource FocusPath}"/>
+        <KeyBinding                        Key="F5" Command="{StaticResource Reflush}"/>
+        <KeyBinding Modifiers="Ctrl"       Key="R"  Command="{StaticResource Reflush}"/>
+        <KeyBinding Modifiers="Ctrl"       Key="F5" Command="{StaticResource ForceReflush}"/>
+        <KeyBinding Modifiers="Ctrl+Shift" Key="R"  Command="{StaticResource ForceReflush}"/>
+        <KeyBinding                        Key="F6" Command="{StaticResource FocusPath}"/>
+        <KeyBinding Modifiers="Ctrl"       Key="L"  Command="{StaticResource FocusPath}"/>
     </Window.InputBindings>
     <Grid>
         <DockPanel>
@@ -67,16 +75,18 @@
                 BeginningEdit="FilesList_BeginningEdit"
                 CellEditEnding="FilesList_CellEditEnding">
                 <DataGrid.InputBindings>
-                    <KeyBinding Modifiers="Alt" Key="Up" Command="{StaticResource Upper}"/>
-                    <KeyBinding Key="Backspace" Command="{StaticResource Upper}"/>
-                    <KeyBinding Modifiers="Alt" Key="Left" Command="{StaticResource Last}"/>
-                    <KeyBinding Modifiers="Alt" Key="Right" Command="{StaticResource Next}"/>
-                    <KeyBinding Modifiers="Ctrl" Key="N" Command="{StaticResource CreateFile}"/>
-                    <KeyBinding Modifiers="Ctrl+Shift" Key="N" Command="{StaticResource CreateDir}"/>
-                    <KeyBinding Key="Enter" Command="{StaticResource Enter}"/>
-                    <KeyBinding Key="F2" Command="{StaticResource Rename}"/>
-                    <KeyBinding Key="Delete" Command="{StaticResource Delete}"/>
-                    <KeyBinding Key="Esc" Command="{StaticResource Esc}"/>
+                    <KeyBinding Modifiers="Alt"        Key="Up"        Command="{StaticResource Upper}"/>
+                    <KeyBinding                        Key="Backspace" Command="{StaticResource Upper}"/>
+                    <KeyBinding Modifiers="Alt"        Key="Left"      Command="{StaticResource Last}"/>
+                    <KeyBinding Modifiers="Alt"        Key="Right"     Command="{StaticResource Next}"/>
+                    <KeyBinding Modifiers="Ctrl"       Key="N"         Command="{StaticResource CreateFile}"/>
+                    <KeyBinding Modifiers="Ctrl+Shift" Key="N"         Command="{StaticResource CreateDir}"/>
+                    <KeyBinding                        Key="Enter"     Command="{StaticResource Enter}"/>
+                    <KeyBinding Modifiers="Shift"      Key="Tab"       Command="{StaticResource EditLast}"/>
+                    <KeyBinding                        Key="Tab"       Command="{StaticResource EditNext}"/>
+                    <KeyBinding                        Key="F2"        Command="{StaticResource Rename}"/>
+                    <KeyBinding                        Key="Delete"    Command="{StaticResource Delete}"/>
+                    <KeyBinding                        Key="Esc"       Command="{StaticResource Esc}"/>
                 </DataGrid.InputBindings>
                 <DataGrid.Resources>
                     <Style TargetType="DataGridRow">

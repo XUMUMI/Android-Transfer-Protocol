@@ -123,6 +123,9 @@
   <data name="AddDevice" xml:space="preserve">
     <value>添加设备</value>
   </data>
+  <data name="ATP" xml:space="preserve">
+    <value>Android Transfer Protocol</value>
+  </data>
   <data name="BLOCK" xml:space="preserve">
     <value>块设备</value>
   </data>
@@ -152,9 +155,6 @@
   </data>
   <data name="FileExist" xml:space="preserve">
     <value>已存在同名文件(夹)</value>
-  </data>
-  <data name="FileManager" xml:space="preserve">
-    <value>文件管理器</value>
   </data>
   <data name="FileName" xml:space="preserve">
     <value>文件名</value>
