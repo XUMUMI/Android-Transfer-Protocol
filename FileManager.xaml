@@ -9,6 +9,7 @@
     <Window.Resources>
         <RoutedCommand x:Key="CancelPath"/>
         <RoutedCommand x:Key="CreateDir"/>
+        <RoutedCommand x:Key="Cut"/>
         <RoutedCommand x:Key="CreateFile"/>
         <RoutedCommand x:Key="Delete"/>
         <RoutedCommand x:Key="EditLast"/>
@@ -20,6 +21,7 @@
         <RoutedCommand x:Key="Last"/>
         <RoutedCommand x:Key="Next"/>
         <RoutedCommand x:Key="OpenPathDir"/>
+        <RoutedCommand x:Key="Paste"/>
         <RoutedCommand x:Key="Reflush"/>
         <RoutedCommand x:Key="Rename"/>
         <RoutedCommand x:Key="Upper"/>
@@ -28,6 +30,7 @@
         <CommandBinding Command="{StaticResource CancelPath}"    Executed="CancelPath_Executed"/>
         <CommandBinding Command="{StaticResource CreateDir}"     Executed="CreateDir_Executed"/>
         <CommandBinding Command="{StaticResource CreateFile}"    Executed="CreateFile_Executed"/>
+        <CommandBinding Command="{StaticResource Cut}"           Executed="Cut_Executed"/>
         <CommandBinding Command="{StaticResource Delete}"        Executed="Delete_Executed"/>
         <CommandBinding Command="{StaticResource EditLast}"      Executed="EditLast_Executed"/>
         <CommandBinding Command="{StaticResource EditNext}"      Executed="EditNext_Executed"/>
@@ -38,6 +41,7 @@
         <CommandBinding Command="{StaticResource Last}"          Executed="Last_Executed"/>
         <CommandBinding Command="{StaticResource Next}"          Executed="Next_Executed"/>
         <CommandBinding Command="{StaticResource OpenPathDir}"   Executed="OpenPathDir_Executed"/>
+        <CommandBinding Command="{StaticResource Paste}"         Executed="Paste_Executed"/>
         <CommandBinding Command="{StaticResource Reflush}"       Executed="Reflush_Executed"/>
         <CommandBinding Command="{StaticResource Rename}"        Executed="Rename_Executed"/>
         <CommandBinding Command="{StaticResource Upper}"         Executed="Upper_Executed"/>
@@ -61,6 +65,13 @@
                     </TextBox.InputBindings>
                 </TextBox>
             </DockPanel>
+            <DockPanel DockPanel.Dock="Bottom">
+                <StatusBar>
+                    <StatusBarItem>
+                        <TextBlock x:Name="StatusBar"></TextBlock>
+                    </StatusBarItem>
+                </StatusBar>
+            </DockPanel>
             <DataGrid 
                 x:Name="FilesList" 
                 AutoGenerateColumns="False" 
@@ -73,7 +84,11 @@
                 SelectedCellsChanged="FilesList_SelectedCellsChanged"
                 PreviewMouseDown="FilesList_PreviewMouseDown" 
                 BeginningEdit="FilesList_BeginningEdit"
-                CellEditEnding="FilesList_CellEditEnding">
+                CellEditEnding="FilesList_CellEditEnding"
+                EnableRowVirtualization="True"
+                VirtualizingStackPanel.VirtualizationMode ="Recycling"
+                VirtualizingStackPanel.IsVirtualizing ="true"
+                VirtualizingPanel.IsVirtualizingWhenGrouping="True">
                 <DataGrid.InputBindings>
                     <KeyBinding Modifiers="Alt"        Key="Up"        Command="{StaticResource Upper}"/>
                     <KeyBinding                        Key="Backspace" Command="{StaticResource Upper}"/>
@@ -87,6 +102,10 @@
                     <KeyBinding                        Key="F2"        Command="{StaticResource Rename}"/>
                     <KeyBinding                        Key="Delete"    Command="{StaticResource Delete}"/>
                     <KeyBinding                        Key="Esc"       Command="{StaticResource Esc}"/>
+                    <KeyBinding Modifiers="Ctrl"       Key="X"         Command="{StaticResource Cut}"/>
+                    <KeyBinding Modifiers="Shift"      Key="Delete"    Command="{StaticResource Cut}"/>
+                    <KeyBinding Modifiers="Ctrl"       Key="V"         Command="{StaticResource Paste}"/>
+                    <KeyBinding Modifiers="Shift"      Key="Insert"    Command="{StaticResource Paste}"/>
                 </DataGrid.InputBindings>
                 <DataGrid.Resources>
                     <Style TargetType="DataGridRow">

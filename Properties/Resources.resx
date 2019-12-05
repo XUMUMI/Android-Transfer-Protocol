@@ -135,11 +135,29 @@
   <data name="CHAR" xml:space="preserve">
     <value>字符设备</value>
   </data>
+  <data name="Connect" xml:space="preserve">
+    <value>连接</value>
+  </data>
   <data name="CONNECTED" xml:space="preserve">
     <value>已连接</value>
   </data>
   <data name="ConnectFailed" xml:space="preserve">
     <value>连接失败或丢失</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>复制</value>
+  </data>
+  <data name="Copying" xml:space="preserve">
+    <value>正在复制</value>
+  </data>
+  <data name="Creating" xml:space="preserve">
+    <value>正在新建文件(夹)</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Deleting" xml:space="preserve">
+    <value>正在删除</value>
   </data>
   <data name="DeviceNum" xml:space="preserve">
     <value>设备号</value>
@@ -161,6 +179,9 @@
   </data>
   <data name="Group" xml:space="preserve">
     <value>组</value>
+  </data>
+  <data name="InvalidPath" xml:space="preserve">
+    <value>无效路径</value>
   </data>
   <data name="Label_Address" xml:space="preserve">
     <value>地址(_A):</value>
@@ -207,6 +228,9 @@
   <data name="Message_CanNoDisconnect" xml:space="preserve">
     <value>此设备不允许通过该发生断开连接</value>
   </data>
+  <data name="Message_CoverFile" xml:space="preserve">
+    <value>是否覆盖该文件(夹)</value>
+  </data>
   <data name="Message_DeleteConfirm" xml:space="preserve">
     <value>你确定要永久地删除所选文件(夹)吗?</value>
     <comment>？</comment>
@@ -216,6 +240,12 @@
   </data>
   <data name="Model" xml:space="preserve">
     <value>设备型号</value>
+  </data>
+  <data name="Move" xml:space="preserve">
+    <value>移动</value>
+  </data>
+  <data name="Moving" xml:space="preserve">
+    <value>正在移动</value>
   </data>
   <data name="New" xml:space="preserve">
     <value>新</value>
@@ -250,8 +280,26 @@
   <data name="Pression" xml:space="preserve">
     <value>权限</value>
   </data>
+  <data name="Reading" xml:space="preserve">
+    <value>正在读取</value>
+  </data>
   <data name="ReadOnly" xml:space="preserve">
     <value>只读</value>
+  </data>
+  <data name="Reflush" xml:space="preserve">
+    <value>刷新</value>
+  </data>
+  <data name="Reflushing" xml:space="preserve">
+    <value>正在刷新</value>
+  </data>
+  <data name="Rename" xml:space="preserve">
+    <value>重命名</value>
+  </data>
+  <data name="Renaming" xml:space="preserve">
+    <value>正在重命名</value>
+  </data>
+  <data name="Selected" xml:space="preserve">
+    <value>已选</value>
   </data>
   <data name="Select_Devices" xml:space="preserve">
     <value>选择设备</value>
@@ -267,6 +315,12 @@
   </data>
   <data name="Status" xml:space="preserve">
     <value>状态</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>成功</value>
+  </data>
+  <data name="Sum" xml:space="preserve">
+    <value>总计</value>
   </data>
   <data name="Time" xml:space="preserve">
     <value>时间</value>

@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace Android_Transfer_Protocol
 {
@@ -19,27 +19,27 @@ namespace Android_Transfer_Protocol
         public DeviceChoose()
         {
             InitializeComponent();
-            /* 委托 DeviceList 实现多线程初始化, 以免界面无法显示 */
-            Task.Factory.StartNew(() => DevicesList.Dispatcher.Invoke(() =>
-            {
-                if (Adb.CheckAdb())
-                {
-                    /* 绑定数据源 */
-                    DevicesList.ItemsSource = DevicesListData;
-                    /* 刷新数据 */
-                    Reflush();
-                }
-                else
-                {
-                    MessageBox.Show(Properties.Resources.AdbLose,
-                                    Properties.Resources.SeriousError,
-                                    MessageBoxButton.OK,
-                                    MessageBoxImage.Error);
-                    Close();
-                }
-            }));
+            /* 多线程初始化, 以免界面无法显示 */
+            Task.Factory.StartNew(() => Dispatcher.Invoke(Init));
         }
 
+        private void Init()
+        {
+            if (Adb.CheckAdb())
+            {
+                /* 绑定数据源 */
+                DevicesList.ItemsSource = DevicesListData;
+                Reflush();
+            }
+            else
+            {
+                MessageBox.Show(Properties.Resources.AdbLose,
+                                Properties.Resources.SeriousError,
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                Close();
+            }
+        }
 
         /***** 刷新 *****/
 
@@ -47,10 +47,19 @@ namespace Android_Transfer_Protocol
         private void Reflush() => Adb.GetDevicesList(DevicesListData);
 
         /**<summary>强制刷新设备列表</summary>**/
+        bool IsReflushing = false;
         private void Force_Reflush_Execute(object sender, ExecutedRoutedEventArgs e)
         {
-            Adb.KillServer();
-            Reflush();
+            if (IsReflushing) return;
+            IsReflushing = true;
+            Cursor = Cursors.Wait;
+            Dispatcher.Invoke(() =>
+            {
+                Adb.KillServer();
+                Reflush();
+                Cursor = Cursors.Arrow;
+                IsReflushing = false;
+            }, DispatcherPriority.ContextIdle);
         }
 
         /**<summary>直接刷新设备列表</summary>**/

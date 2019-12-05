@@ -5,23 +5,26 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace Android_Transfer_Protocol
 {
     /**<summary>Adb 对接静态类</summary>**/
     internal static class Adb
     {
+        public static TextBlock StatusTextBlock = null;
         public const int RESULT = 0, ERROR = 1;
 
         /***** 常量表 *****/
-        private static readonly string ADB = $"/C \"{Environment.CurrentDirectory}\\adb\\adb.exe\"";
         private const string CONNECT = "connect";
         private const string DELETE = "rm -rf";
         private const string DELETE_HEAD = "rm: ";
         private const string DISCONNECT = "disconnect";
         private const string GET_DEVICES = "devices -l";
         private const string SHELL = "shell";
-        private const string SHELL_NAME = "cmd";
+        private const string SHELL_NAME = "adb\\adb.exe";
         private const string KILL_SERVER = "kill-server";
         private const string LS = "ls -alh";
         private const string MKDIR = "mkdir -p";
@@ -45,10 +48,15 @@ namespace Android_Transfer_Protocol
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 StandardOutputEncoding = Encoding.UTF8,
-                StandardErrorEncoding = Encoding.UTF8,
-                Arguments = ADB
+                StandardErrorEncoding = Encoding.UTF8
             }
         };
+
+        /**<summary>执行 ADB 命令, 返回结果字符串和错误字符串</summary>**/
+        private static void SetStatus(string status)
+        {
+            if(StatusTextBlock != null) StatusTextBlock.Text = status;
+        }
 
         /***** 运行函数 *****/
 
@@ -58,9 +66,15 @@ namespace Android_Transfer_Protocol
         /**<summary>执行 ADB 命令, 返回结果字符串和错误字符串</summary>**/
         private static string[] Exec(string command = "")
         {
-            cmd.StartInfo.Arguments = $"{ADB} {command}";
-            cmd.Start();
-            return new string[] { cmd.StandardOutput.ReadToEnd().Replace("\r", ""), cmd.StandardError.ReadToEnd() };
+            string[] ret = new string[2];
+            cmd.StartInfo.Arguments = command;
+            Dispatcher.CurrentDispatcher.Invoke(() =>
+            {
+                cmd.Start();
+                ret[RESULT] = cmd.StandardOutput.ReadToEnd().Replace("\r", "").Replace("\\`", "`");
+                ret[ERROR] = cmd.StandardError.ReadToEnd().Replace("\r", "").Replace("\\`", "`");
+            }, DispatcherPriority.Loaded);
+            return ret;
         }
 
         /**<summary>执行 Shell 命令, 返回结果字符串和错误字符串</summary>**/
@@ -145,7 +159,7 @@ namespace Android_Transfer_Protocol
         private static string[] FilesStringList;
         private static string[] FileBuf;
 
-        private static string[] Ls(string path) => Shell($"{LS} '{path}'");
+        private static string[] Ls(string path) => Shell($"{LS} {FileNameEscape(path)}");
 
         /**<summary>检测路径是否存在</summary>**/
         public static bool CheckPath(string path = "/") => !string.IsNullOrEmpty(Ls(path)[RESULT]);
@@ -173,10 +187,7 @@ namespace Android_Transfer_Protocol
         {
             FileCache = null;
             /* 空字符串直接返回 null */
-            if (string.IsNullOrEmpty(sfile))
-            {
-                return FileCache;
-            }
+            if (string.IsNullOrEmpty(sfile)) return FileCache;
 
             FileBuf = new Regex("[\\s]+").Replace(sfile, " ").Split(' ');
             int index = 0;
@@ -246,31 +257,26 @@ namespace Android_Transfer_Protocol
         /**<summary>传入一个文件列表和路径, 该函数可以对文件列表进行赋值, 如有错误将返回错误信息</summary>**/
         public static string GetFilesList(ref ObservableCollection<AFile> files_list, string path = "/")
         {
-            /* 路径不能访问直接返回错误 */
-            if (!CheckPath(path)) return PATH_ERROR;
-            Path = path;
+            SetStatus($"{Properties.Resources.Reading} {path}");
             /* 是否存在缓存 */
             if (FilesListCache.ContainsKey(path))
             {
+                Path = path;
                 files_list = FilesListCache[path];
                 return null;
             }
+            /* 路径不能访问直接返回错误 */
+            if (!CheckPath(path)) return PATH_ERROR;
+            Path = path;
             files_list = FilesListCache[path] = new ObservableCollection<AFile>();
             /* 读取结果准备处理 */
             ExecResult = Ls(Path);
-            /* 切割字符串存到列表 */
-            FilesStringList = ExecResult[ERROR].Split('\n');
-            /* 批量处理字符串并存入数据表 */
-            foreach (string file in FilesStringList)
-            {
-                if (ErrString2Afile(file) != null) files_list.Add(FileCache);
-            }
 
+            FilesStringList = ExecResult[ERROR].Split('\n');
+            foreach (string file in FilesStringList) if (ErrString2Afile(file) != null) files_list.Add(FileCache);
             FilesStringList = ExecResult[RESULT].Split('\n');
-            foreach (string file in FilesStringList)
-            {
-                if (String2Afile(file) != null) files_list.Add(FileCache);
-            }
+            foreach (string file in FilesStringList) if (String2Afile(file) != null) files_list.Add(FileCache);
+
             return null;
         }
 
@@ -323,6 +329,23 @@ namespace Android_Transfer_Protocol
             return error_message;
         }
 
+        /**<summary>文件名规范</summary>*/
+        public static string FileNameEscape(string e) => $"{e.Replace("\\", "\\\\").Replace(" ", "\\ ").Replace("`", "\\`").Replace("'", "\\\'").Replace("\"", "\\\\\\\"")}";
+
+
+        /**<summary>多文件名转换</summary>*/
+        public static string Files2String(IList<AFile> files)
+        {
+            string files_name = FileNameEscape(Path);
+            foreach (AFile file in files) files_name += $"\n{file.Name}";
+            return files_name;
+        }
+
+        /**<summary>获取上一层目录地址</summary>*/
+        public static string GetUpperDir(string path) => path.Length > 1 ? path.Remove(path.LastIndexOf('/', path.Length - 2)) + "/" : path;
+
+        /**<summary>获取文件名</summary>*/
+        public static string GetThisFileName(string path) => path.Length > 1 ? path.Remove(0, path.LastIndexOf('/', path.Length - 2)).Trim('/') : path;
 
         /*** 新建文件(夹) ***/
         private static string Create(string command, string name)
@@ -330,36 +353,76 @@ namespace Android_Transfer_Protocol
             if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(command)) throw new ArgumentException();
             name = Path + name;
             if (CheckPath(name)) return Properties.Resources.FileExist;
-            return Shell($"{command} '{name}'")[ERROR];
+            return Shell($"{command} {FileNameEscape(name)}")[ERROR];
         }
 
         public static string CreateFile(string file_name) => Create(TOUCH, file_name).Replace(TOUCH_HEAD, "");
         public static string CreateDir(string dir_name) => Create(MKDIR, dir_name).Replace(MKDIR_HEAD, "");
 
 
-        /*** 重命名及移动 ***/
+        /*** 复制 ***/
+
+        /*** 移动及重命名 ***/
 
         private static string Mv(string new_path, string old_path)
         {
+            SetStatus($"{old_path} => {new_path}");
             if (string.IsNullOrEmpty(new_path) || string.IsNullOrEmpty(old_path)) throw new ArgumentException();
+            if (!CheckPath(old_path)) return $"{Properties.Resources.InvalidPath}: {old_path}";
+            old_path = FileNameEscape(old_path);
+            new_path = FileNameEscape(new_path);
             /* 目标与源相同, 不需要任何操作 */
             if (new_path == old_path) return null;
-            else return Shell($"{MV} '{old_path}' '{new_path}'")[ERROR].Replace(MV_HEAD, "");
+            else return Shell($"{MV} {old_path} {new_path}")[ERROR].Replace(MV_HEAD, "");
+        }
+
+        /**<summary>移动</summary>**/
+        public static string Move(string old_files, Func<string, bool> cover)// => (Mv(new_path, old_paths.TrimStart('\'').TrimEnd('\'')));
+        {
+            List<string> ret = new List<string>();
+            /* 将源地址字符串转为列表 */
+            //string[] old_paths_list = new Regex("'.*?'").Matches(old_paths).Cast<Match>().Select(path => path.Value.Replace("'", "")).ToArray();
+            //old_paths.Remove(0, 1).TrimEnd('\'').Split(new string[] { "' '" }, StringSplitOptions.RemoveEmptyEntries); //切割与正则
+            string[] old_files_list = old_files.Split('\n');
+            string old_path = old_files_list[0];
+            foreach (string file_name in old_files_list.Skip(1))
+            {
+                if (CheckPath($"{Path}{file_name}"))
+                {
+                    if (cover(file_name)) ret.Add(Rm($"{Path}{file_name}"));
+                    else continue;
+                }
+                ret.Add(Mv(Path, $"{old_path}{file_name}"));
+                FlushCache(old_path);
+            }
+            ret.RemoveAll(message => string.IsNullOrEmpty(message));
+            return string.Join("\n", ret);
         }
 
         /**<summary>重命名</summary>**/
         public static string Rename(string new_name, string old_name)
         {
-            if (CheckPath(Path + new_name)) return Properties.Resources.FileExist;
-            else return Mv(Path + new_name, Path + old_name);
+            if (CheckPath($"{Path}{new_name}")) return Properties.Resources.FileExist;
+            else return Mv($"{Path}{new_name}", $"{Path}{old_name}");
         }
 
         /*** 删除 ***/
-        public static string Rm(IList<AFile> files)
+        public static string Rm(string files)
         {
-            string files_name = "";
-            foreach (AFile file in files) files_name += $" \'{Path}{file.Name}\'";
-            return Shell($"{DELETE}{files_name}")[ERROR].Replace(DELETE_HEAD, "");
+            List<string> ret = new List<string>();
+            /* 将源地址字符串转为列表 */
+            //string[] old_paths_list = new Regex("'.*?'").Matches(old_paths).Cast<Match>().Select(path => path.Value.Replace("'", "")).ToArray();
+            //old_paths.Remove(0, 1).TrimEnd('\'').Split(new string[] { "' '" }, StringSplitOptions.RemoveEmptyEntries); //切割与正则
+            string[] files_list = files.Split('\n');
+            string path = files_list[0];
+            foreach (string file_name in files_list.Skip(1))
+            {
+                SetStatus($"{Properties.Resources.Deleting} {file_name}");
+                ret.Add(Shell($"{DELETE} {FileNameEscape($"{path}{file_name}")}")[ERROR].Replace(DELETE_HEAD, ""));
+                FlushCache($"{path}{file_name}/");
+            }
+            ret.RemoveAll(message => string.IsNullOrEmpty(message));
+            return string.Join("\n", ret);
         }
 
         /***** 回收函数 *****/

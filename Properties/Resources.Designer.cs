@@ -115,6 +115,15 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
+        ///   查找类似 连接 的本地化字符串。
+        /// </summary>
+        public static string Connect {
+            get {
+                return ResourceManager.GetString("Connect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 已连接 的本地化字符串。
         /// </summary>
         public static string CONNECTED {
@@ -129,6 +138,51 @@ namespace Android_Transfer_Protocol.Properties {
         public static string ConnectFailed {
             get {
                 return ResourceManager.GetString("ConnectFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 复制 的本地化字符串。
+        /// </summary>
+        public static string Copy {
+            get {
+                return ResourceManager.GetString("Copy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 正在复制 的本地化字符串。
+        /// </summary>
+        public static string Copying {
+            get {
+                return ResourceManager.GetString("Copying", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 正在新建文件(夹) 的本地化字符串。
+        /// </summary>
+        public static string Creating {
+            get {
+                return ResourceManager.GetString("Creating", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 删除 的本地化字符串。
+        /// </summary>
+        public static string Delete {
+            get {
+                return ResourceManager.GetString("Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 正在删除 的本地化字符串。
+        /// </summary>
+        public static string Deleting {
+            get {
+                return ResourceManager.GetString("Deleting", resourceCulture);
             }
         }
         
@@ -192,6 +246,15 @@ namespace Android_Transfer_Protocol.Properties {
         public static string Group {
             get {
                 return ResourceManager.GetString("Group", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 无效路径 的本地化字符串。
+        /// </summary>
+        public static string InvalidPath {
+            get {
+                return ResourceManager.GetString("InvalidPath", resourceCulture);
             }
         }
         
@@ -331,6 +394,15 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
+        ///   查找类似 是否覆盖该文件(夹) 的本地化字符串。
+        /// </summary>
+        public static string Message_CoverFile {
+            get {
+                return ResourceManager.GetString("Message_CoverFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 你确定要永久地删除所选文件(夹)吗? 的本地化字符串。
         /// </summary>
         public static string Message_DeleteConfirm {
@@ -354,6 +426,24 @@ namespace Android_Transfer_Protocol.Properties {
         public static string Model {
             get {
                 return ResourceManager.GetString("Model", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 移动 的本地化字符串。
+        /// </summary>
+        public static string Move {
+            get {
+                return ResourceManager.GetString("Move", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 正在移动 的本地化字符串。
+        /// </summary>
+        public static string Moving {
+            get {
+                return ResourceManager.GetString("Moving", resourceCulture);
             }
         }
         
@@ -457,6 +547,15 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
+        ///   查找类似 正在读取 的本地化字符串。
+        /// </summary>
+        public static string Reading {
+            get {
+                return ResourceManager.GetString("Reading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 只读 的本地化字符串。
         /// </summary>
         public static string ReadOnly {
@@ -466,11 +565,56 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
+        ///   查找类似 刷新 的本地化字符串。
+        /// </summary>
+        public static string Reflush {
+            get {
+                return ResourceManager.GetString("Reflush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 正在刷新 的本地化字符串。
+        /// </summary>
+        public static string Reflushing {
+            get {
+                return ResourceManager.GetString("Reflushing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 重命名 的本地化字符串。
+        /// </summary>
+        public static string Rename {
+            get {
+                return ResourceManager.GetString("Rename", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 正在重命名 的本地化字符串。
+        /// </summary>
+        public static string Renaming {
+            get {
+                return ResourceManager.GetString("Renaming", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 选择设备 的本地化字符串。
         /// </summary>
         public static string Select_Devices {
             get {
                 return ResourceManager.GetString("Select_Devices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 已选 的本地化字符串。
+        /// </summary>
+        public static string Selected {
+            get {
+                return ResourceManager.GetString("Selected", resourceCulture);
             }
         }
         
@@ -507,6 +651,24 @@ namespace Android_Transfer_Protocol.Properties {
         public static string Status {
             get {
                 return ResourceManager.GetString("Status", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 成功 的本地化字符串。
+        /// </summary>
+        public static string Success {
+            get {
+                return ResourceManager.GetString("Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 总计 的本地化字符串。
+        /// </summary>
+        public static string Sum {
+            get {
+                return ResourceManager.GetString("Sum", resourceCulture);
             }
         }
         
