@@ -57,7 +57,5 @@ namespace Android_Transfer_Protocol
 
         /***** 按钮 *****/
         private void OK_Click(object sender, RoutedEventArgs e) => Submit();
-
-        private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
     }
 }

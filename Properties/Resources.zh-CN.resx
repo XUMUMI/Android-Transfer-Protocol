@@ -165,6 +165,9 @@
   <data name="DIR" xml:space="preserve">
     <value>文件夹</value>
   </data>
+  <data name="Duplication" xml:space="preserve">
+    <value>副本</value>
+  </data>
   <data name="Error" xml:space="preserve">
     <value>错误</value>
   </data>
@@ -229,11 +232,10 @@
     <value>此设备不允许通过该发生断开连接</value>
   </data>
   <data name="Message_CoverFile" xml:space="preserve">
-    <value>是否覆盖该文件(夹)</value>
+    <value>是否覆盖文件或合并文件夹</value>
   </data>
   <data name="Message_DeleteConfirm" xml:space="preserve">
-    <value>你确定要永久地删除所选文件(夹)吗?</value>
-    <comment>？</comment>
+    <value>你确定要永久地删除这些文件(夹)吗?</value>
   </data>
   <data name="Message_NoAddressTip" xml:space="preserve">
     <value>请输入地址!</value>

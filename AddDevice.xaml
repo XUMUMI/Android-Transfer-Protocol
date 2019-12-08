@@ -34,7 +34,7 @@
             </TextBox.InputBindings>
         </TextBox>
         <Button x:Name="OK_Button" Content="{x:Static local:Resources.OK}" HorizontalAlignment="Left" Margin="106,109,0,0" VerticalAlignment="Top" Width="75" Click="OK_Click" TabIndex="3"/>
-        <Button x:Name="Cancel_Button" Content="{x:Static local:Resources.Cancel}" HorizontalAlignment="Left" Margin="200,109,0,0" VerticalAlignment="Top" Width="75" Click="Cancel_Click" TabIndex="4"/>
+        <Button x:Name="Cancel_Button" Content="{x:Static local:Resources.Cancel}" HorizontalAlignment="Left" Margin="200,109,0,0" VerticalAlignment="Top" Width="75" IsCancel="True" TabIndex="4"/>
 
     </Grid>
 </Window>

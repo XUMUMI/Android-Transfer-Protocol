@@ -8,10 +8,12 @@
         Title="{x:Static local:Resources.ATP}">
     <Window.Resources>
         <RoutedCommand x:Key="CancelPath"/>
+        <RoutedCommand x:Key="Copy"/>
         <RoutedCommand x:Key="CreateDir"/>
         <RoutedCommand x:Key="Cut"/>
         <RoutedCommand x:Key="CreateFile"/>
         <RoutedCommand x:Key="Delete"/>
+        <RoutedCommand x:Key="Duplication"/>
         <RoutedCommand x:Key="EditLast"/>
         <RoutedCommand x:Key="EditNext"/>
         <RoutedCommand x:Key="Enter"/>
@@ -24,14 +26,17 @@
         <RoutedCommand x:Key="Paste"/>
         <RoutedCommand x:Key="Reflush"/>
         <RoutedCommand x:Key="Rename"/>
+        <RoutedCommand x:Key="Stop"/>
         <RoutedCommand x:Key="Upper"/>
     </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="{StaticResource CancelPath}"    Executed="CancelPath_Executed"/>
         <CommandBinding Command="{StaticResource CreateDir}"     Executed="CreateDir_Executed"/>
+        <CommandBinding Command="{StaticResource Copy}"          Executed="Copy_Executed"/>
         <CommandBinding Command="{StaticResource CreateFile}"    Executed="CreateFile_Executed"/>
         <CommandBinding Command="{StaticResource Cut}"           Executed="Cut_Executed"/>
         <CommandBinding Command="{StaticResource Delete}"        Executed="Delete_Executed"/>
+        <CommandBinding Command="{StaticResource Duplication}"   Executed="Duplication_Executed"/>
         <CommandBinding Command="{StaticResource EditLast}"      Executed="EditLast_Executed"/>
         <CommandBinding Command="{StaticResource EditNext}"      Executed="EditNext_Executed"/>
         <CommandBinding Command="{StaticResource Enter}"         Executed="Enter_Executed"/>
@@ -44,6 +49,7 @@
         <CommandBinding Command="{StaticResource Paste}"         Executed="Paste_Executed"/>
         <CommandBinding Command="{StaticResource Reflush}"       Executed="Reflush_Executed"/>
         <CommandBinding Command="{StaticResource Rename}"        Executed="Rename_Executed"/>
+        <CommandBinding Command="{StaticResource Stop}"          Executed="Stop_Executed"/>
         <CommandBinding Command="{StaticResource Upper}"         Executed="Upper_Executed"/>
     </Window.CommandBindings>
     <Window.InputBindings>
@@ -68,7 +74,14 @@
             <DockPanel DockPanel.Dock="Bottom">
                 <StatusBar>
                     <StatusBarItem>
-                        <TextBlock x:Name="StatusBar"></TextBlock>
+                        <TextBlock x:Name="StatusMessage"/>
+                    </StatusBarItem>
+                    <StatusBarItem HorizontalContentAlignment="Right" Padding="0">
+                        <Button x:Name="StopButton" Content=" × " Command="{StaticResource Stop}" BorderBrush="{x:Null}" Foreground="Black">
+                            <Button.Background>
+                                <SolidColorBrush Color="#FFF1EDED" Opacity="0"/>
+                            </Button.Background>
+                        </Button>
                     </StatusBarItem>
                 </StatusBar>
             </DockPanel>
@@ -88,7 +101,8 @@
                 EnableRowVirtualization="True"
                 VirtualizingStackPanel.VirtualizationMode ="Recycling"
                 VirtualizingStackPanel.IsVirtualizing ="true"
-                VirtualizingPanel.IsVirtualizingWhenGrouping="True">
+                VirtualizingPanel.IsVirtualizingWhenGrouping="True"
+                Drop="FilesList_Drop">
                 <DataGrid.InputBindings>
                     <KeyBinding Modifiers="Alt"        Key="Up"        Command="{StaticResource Upper}"/>
                     <KeyBinding                        Key="Backspace" Command="{StaticResource Upper}"/>
@@ -103,9 +117,12 @@
                     <KeyBinding                        Key="Delete"    Command="{StaticResource Delete}"/>
                     <KeyBinding                        Key="Esc"       Command="{StaticResource Esc}"/>
                     <KeyBinding Modifiers="Ctrl"       Key="X"         Command="{StaticResource Cut}"/>
+                    <KeyBinding Modifiers="Ctrl"       Key="C"         Command="{StaticResource Copy}"/>
+                    <KeyBinding Modifiers="Ctrl"       Key="D"         Command="{StaticResource Duplication}"/>
                     <KeyBinding Modifiers="Shift"      Key="Delete"    Command="{StaticResource Cut}"/>
                     <KeyBinding Modifiers="Ctrl"       Key="V"         Command="{StaticResource Paste}"/>
                     <KeyBinding Modifiers="Shift"      Key="Insert"    Command="{StaticResource Paste}"/>
+                    <KeyBinding Modifiers="Shift"      Key="Esc"       Command="{StaticResource Stop}"/>
                 </DataGrid.InputBindings>
                 <DataGrid.Resources>
                     <Style TargetType="DataGridRow">

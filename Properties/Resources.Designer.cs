@@ -205,6 +205,15 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
+        ///   查找类似 副本 的本地化字符串。
+        /// </summary>
+        public static string Duplication {
+            get {
+                return ResourceManager.GetString("Duplication", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 错误 的本地化字符串。
         /// </summary>
         public static string Error {
@@ -394,7 +403,7 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
-        ///   查找类似 是否覆盖该文件(夹) 的本地化字符串。
+        ///   查找类似 是否覆盖文件或合并文件夹 的本地化字符串。
         /// </summary>
         public static string Message_CoverFile {
             get {
@@ -403,7 +412,7 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
-        ///   查找类似 你确定要永久地删除所选文件(夹)吗? 的本地化字符串。
+        ///   查找类似 你确定要永久地删除这些文件(夹)吗? 的本地化字符串。
         /// </summary>
         public static string Message_DeleteConfirm {
             get {

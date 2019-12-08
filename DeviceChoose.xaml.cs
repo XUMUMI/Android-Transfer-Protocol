@@ -19,6 +19,7 @@ namespace Android_Transfer_Protocol
         public DeviceChoose()
         {
             InitializeComponent();
+            Activate();
             /* 多线程初始化, 以免界面无法显示 */
             Task.Factory.StartNew(() => Dispatcher.Invoke(Init));
         }
@@ -71,7 +72,8 @@ namespace Android_Transfer_Protocol
         /**<summary>添加设备事件</summary>**/
         private void Add_Device_Execute(object sender, ExecutedRoutedEventArgs e)
         {
-            new AddDevice().ShowDialog();
+            AddDevice add_device = new AddDevice();
+            add_device.ShowDialog();
             Reflush();
         }
 
@@ -88,7 +90,8 @@ namespace Android_Transfer_Protocol
             Adb.Device = CurrentDevice;
             if (Adb.CheckPath())
             {
-                new FileManager().Show();
+                FileManager file_manager = new FileManager();
+                file_manager.Show();
                 Close();
             }
             else
