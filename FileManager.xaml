@@ -5,6 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Android_Transfer_Protocol.Properties"
         mc:Ignorable="d"
+        Closing="Window_Closing"
+        Closed="Window_Closed"
         Title="{x:Static local:Resources.ATP}">
     <Window.Resources>
         <RoutedCommand x:Key="CancelPath"/>
@@ -13,7 +15,7 @@
         <RoutedCommand x:Key="Cut"/>
         <RoutedCommand x:Key="CreateFile"/>
         <RoutedCommand x:Key="Delete"/>
-        <RoutedCommand x:Key="Duplication"/>
+        <RoutedCommand x:Key="Duplicate"/>
         <RoutedCommand x:Key="EditLast"/>
         <RoutedCommand x:Key="EditNext"/>
         <RoutedCommand x:Key="Enter"/>
@@ -36,7 +38,7 @@
         <CommandBinding Command="{StaticResource CreateFile}"    Executed="CreateFile_Executed"/>
         <CommandBinding Command="{StaticResource Cut}"           Executed="Cut_Executed"/>
         <CommandBinding Command="{StaticResource Delete}"        Executed="Delete_Executed"/>
-        <CommandBinding Command="{StaticResource Duplication}"   Executed="Duplication_Executed"/>
+        <CommandBinding Command="{StaticResource Duplicate}"     Executed="Duplicate_Executed"/>
         <CommandBinding Command="{StaticResource EditLast}"      Executed="EditLast_Executed"/>
         <CommandBinding Command="{StaticResource EditNext}"      Executed="EditNext_Executed"/>
         <CommandBinding Command="{StaticResource Enter}"         Executed="Enter_Executed"/>
@@ -60,117 +62,152 @@
         <KeyBinding                        Key="F6" Command="{StaticResource FocusPath}"/>
         <KeyBinding Modifiers="Ctrl"       Key="L"  Command="{StaticResource FocusPath}"/>
     </Window.InputBindings>
-    <Grid>
-        <DockPanel>
-            <DockPanel DockPanel.Dock="Top">
-                <Button x:Name="UpperButton" Content="  ↑  " Command="{StaticResource Upper}"/>
-                <TextBox x:Name="PathBar" GotFocus="PathBar_GotFocus" LostFocus="PathBar_LostFocus" PreviewMouseLeftButtonDown="PathBar_PreviewMouseLeftButtonDown">
-                    <TextBox.InputBindings>
-                        <KeyBinding Key="Enter" Command="{StaticResource OpenPathDir}"/>
-                        <KeyBinding Key="Esc"   Command="{StaticResource CancelPath}"/>
-                    </TextBox.InputBindings>
-                </TextBox>
-            </DockPanel>
-            <DockPanel DockPanel.Dock="Bottom">
-                <StatusBar>
-                    <StatusBarItem>
-                        <TextBlock x:Name="StatusMessage"/>
-                    </StatusBarItem>
-                    <StatusBarItem HorizontalContentAlignment="Right" Padding="0">
-                        <Button x:Name="StopButton" Content=" × " Command="{StaticResource Stop}" BorderBrush="{x:Null}" Foreground="Black">
-                            <Button.Background>
-                                <SolidColorBrush Color="#FFF1EDED" Opacity="0"/>
-                            </Button.Background>
-                        </Button>
-                    </StatusBarItem>
-                </StatusBar>
-            </DockPanel>
-            <DataGrid 
-                x:Name="FilesList" 
-                AutoGenerateColumns="False" 
-                GridLinesVisibility="None" 
-                HeadersVisibility="Column"
-                CanUserAddRows="False"
-                AllowDrop="True"
-                CanUserDeleteRows="False"
-                BorderThickness="0"
-                SelectedCellsChanged="FilesList_SelectedCellsChanged"
-                PreviewMouseDown="FilesList_PreviewMouseDown" 
-                BeginningEdit="FilesList_BeginningEdit"
-                CellEditEnding="FilesList_CellEditEnding"
-                EnableRowVirtualization="True"
-                VirtualizingStackPanel.VirtualizationMode ="Recycling"
-                VirtualizingStackPanel.IsVirtualizing ="true"
-                VirtualizingPanel.IsVirtualizingWhenGrouping="True"
-                Drop="FilesList_Drop">
-                <DataGrid.InputBindings>
-                    <KeyBinding Modifiers="Alt"        Key="Up"        Command="{StaticResource Upper}"/>
-                    <KeyBinding                        Key="Backspace" Command="{StaticResource Upper}"/>
-                    <KeyBinding Modifiers="Alt"        Key="Left"      Command="{StaticResource Last}"/>
-                    <KeyBinding Modifiers="Alt"        Key="Right"     Command="{StaticResource Next}"/>
-                    <KeyBinding Modifiers="Ctrl"       Key="N"         Command="{StaticResource CreateFile}"/>
-                    <KeyBinding Modifiers="Ctrl+Shift" Key="N"         Command="{StaticResource CreateDir}"/>
-                    <KeyBinding                        Key="Enter"     Command="{StaticResource Enter}"/>
-                    <KeyBinding Modifiers="Shift"      Key="Tab"       Command="{StaticResource EditLast}"/>
-                    <KeyBinding                        Key="Tab"       Command="{StaticResource EditNext}"/>
-                    <KeyBinding                        Key="F2"        Command="{StaticResource Rename}"/>
-                    <KeyBinding                        Key="Delete"    Command="{StaticResource Delete}"/>
-                    <KeyBinding                        Key="Esc"       Command="{StaticResource Esc}"/>
-                    <KeyBinding Modifiers="Ctrl"       Key="X"         Command="{StaticResource Cut}"/>
-                    <KeyBinding Modifiers="Ctrl"       Key="C"         Command="{StaticResource Copy}"/>
-                    <KeyBinding Modifiers="Ctrl"       Key="D"         Command="{StaticResource Duplication}"/>
-                    <KeyBinding Modifiers="Shift"      Key="Delete"    Command="{StaticResource Cut}"/>
-                    <KeyBinding Modifiers="Ctrl"       Key="V"         Command="{StaticResource Paste}"/>
-                    <KeyBinding Modifiers="Shift"      Key="Insert"    Command="{StaticResource Paste}"/>
-                    <KeyBinding Modifiers="Shift"      Key="Esc"       Command="{StaticResource Stop}"/>
-                </DataGrid.InputBindings>
-                <DataGrid.Resources>
-                    <Style TargetType="DataGridRow">
-                        <EventSetter Event="MouseDoubleClick" Handler="DataGridRow_MouseDoubleClick"/>
-                    </Style>
-                    <Style TargetType="DataGridCell">
-                        <EventSetter Event="PreviewMouseLeftButtonDown" Handler="DataGridCell_PreviewMouseLeftButtonDown"/>
-                        <Setter Property="BorderThickness" Value="0"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Type}">
-                                <Setter Property="Focusable" Value="False"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Link}">
-                                <Setter Property="Focusable" Value="False"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Pression}">
-                                <Setter Property="Focusable" Value="False"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.User}">
-                                <Setter Property="Focusable" Value="False"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Group}">
-                                <Setter Property="Focusable" Value="False"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.DeviceNum}">
-                                <Setter Property="Focusable" Value="False"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Size}">
-                                <Setter Property="Focusable" Value="False"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Time}">
-                                <Setter Property="Focusable" Value="False"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </DataGrid.Resources>
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="{x:Static local:Resources.FileName}" Binding="{Binding Name, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" x:Name="FilesNameCol" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="{x:Static local:Resources.Type}" Binding="{Binding Type}" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="{x:Static local:Resources.DeviceNum}" Binding="{Binding DeviceNum}" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="{x:Static local:Resources.Link}" Binding="{Binding Link}" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="{x:Static local:Resources.Pression}" Binding="{Binding Pression}" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="{x:Static local:Resources.User}" Binding="{Binding User}" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="{x:Static local:Resources.Group}" Binding="{Binding Group}" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="{x:Static local:Resources.Size}" Binding="{Binding Size}" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="{x:Static local:Resources.Time}" Binding="{Binding DateTime}" IsReadOnly="True"/>
-                </DataGrid.Columns>
-            </DataGrid>
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Top">
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="{x:Static local:Resources.Menu_Device}">
+                    <MenuItem Header="{x:Static local:Resources.Menu_Elevation}"                                          Click="Elevation_Click"/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_Deauthorization}"                                    Click="Revoke_Click"/>
+                    <Separator/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_Disconnect}"     InputGestureText="Alt + F4"         Click="Disconnect_Click"/>
+                </MenuItem>
+                <MenuItem     Header="{x:Static local:Resources.Menu_Browse}">
+                    <MenuItem Header="{x:Static local:Resources.Menu_Reflush}"        InputGestureText="F5"               Command="{StaticResource Reflush}"/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_ForcedReflush}"  InputGestureText="Ctrl + F5"        Command="{StaticResource ForceReflush}"/>
+                    <Separator/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_Back}"           InputGestureText="Alt + ←"         Command="{StaticResource Last}"/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_Forward}"        InputGestureText="Alt + →"         Command="{StaticResource Next}"/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_Upper}"          InputGestureText="Alt + ↑"         Command="{StaticResource Upper}"/>
+                </MenuItem>
+                <MenuItem     Header="{x:Static local:Resources.Menu_Edit}">
+                    <MenuItem Header="{x:Static local:Resources.Menu_Cut}"            InputGestureText="Ctrl + X"         Command="{StaticResource Cut}"/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_Copy}"           InputGestureText="Ctrl + C"         Command="{StaticResource Copy}"/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_Duplicate}"      InputGestureText="Ctrl + D"         Command="{StaticResource Duplicate}"/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_Paste}"          InputGestureText="Ctrl + V"         Command="{StaticResource Paste}"/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_Rename}"         InputGestureText="F2"               Command="{StaticResource Rename}"/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_Delete}"         InputGestureText="Delete"           Command="{StaticResource Delete}"/>
+                    <Separator/>                                                                                          
+                    <MenuItem Header="{x:Static local:Resources.NewFile}"             InputGestureText="Ctrl + N"         Command="{StaticResource CreateFile}"/>
+                    <MenuItem Header="{x:Static local:Resources.NewDir}"              InputGestureText="Ctrl + Shift + N" Command="{StaticResource CreateDir}"/>
+                    <Separator/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_SelectAll}"      InputGestureText="Ctrl + A"         Click="SelectAll"/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_CancelSelected}" InputGestureText="Esc"              Click="CancelSelected"/>
+                </MenuItem>
+                <MenuItem     Header="{x:Static local:Resources.Menu_Help}">
+                    <MenuItem Header="{x:Static local:Resources.Menu_About}"/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_CheckUpdate}"/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_HowToUse}"/>
+                </MenuItem>
+            </Menu>
+            <Button x:Name="BackButton"    Content=" ← "   Command="{StaticResource Last}"/>
+            <Button x:Name="ForwardButton" Content=" → "   Command="{StaticResource Next}"/>
+            <Button x:Name="UpperButton"   Content="  ↑  " Command="{StaticResource Upper}"/>
+            <TextBox x:Name="PathBar"      GotFocus="PathBar_GotFocus" LostFocus="PathBar_LostFocus" PreviewMouseLeftButtonDown="PathBar_PreviewMouseLeftButtonDown">
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Enter" Command="{StaticResource OpenPathDir}"/>
+                    <KeyBinding Key="Esc"   Command="{StaticResource CancelPath}"/>
+                </TextBox.InputBindings>
+            </TextBox>
         </DockPanel>
-    </Grid>
+        <DockPanel DockPanel.Dock="Bottom">
+            <StatusBar>
+                <StatusBarItem>
+                    <TextBlock x:Name="StatusMessage"/>
+                </StatusBarItem>
+                <StatusBarItem HorizontalContentAlignment="Right" Padding="0">
+                    <Button x:Name="StopButton" Content=" × " Command="{StaticResource Stop}" BorderBrush="{x:Null}" Foreground="Black">
+                        <Button.Background>
+                            <SolidColorBrush Color="#FFF1EDED" Opacity="0"/>
+                        </Button.Background>
+                    </Button>
+                </StatusBarItem>
+            </StatusBar>
+        </DockPanel>
+        <DataGrid 
+            x:Name="FilesList" 
+            AutoGenerateColumns="False" 
+            GridLinesVisibility="None" 
+            HeadersVisibility="Column"
+            CanUserAddRows="False"
+            AllowDrop="True"
+            CanUserDeleteRows="False"
+            BorderThickness="0"
+            SelectedCellsChanged="FilesList_SelectedCellsChanged"
+            PreviewMouseDown="FilesList_PreviewMouseDown" 
+            BeginningEdit="FilesList_BeginningEdit"
+            CellEditEnding="FilesList_CellEditEnding"
+            EnableRowVirtualization="True"
+            VirtualizingStackPanel.VirtualizationMode ="Recycling"
+            VirtualizingStackPanel.IsVirtualizing ="true"
+            VirtualizingPanel.IsVirtualizingWhenGrouping="True"
+            Drop="FilesList_Drop">
+            <DataGrid.InputBindings>
+                <KeyBinding Modifiers="Alt"        Key="Up"        Command="{StaticResource Upper}"/>
+                <KeyBinding                        Key="Backspace" Command="{StaticResource Upper}"/>
+                <KeyBinding Modifiers="Alt"        Key="Left"      Command="{StaticResource Last}"/>
+                <KeyBinding Modifiers="Alt"        Key="Right"     Command="{StaticResource Next}"/>
+                <KeyBinding Modifiers="Ctrl"       Key="N"         Command="{StaticResource CreateFile}"/>
+                <KeyBinding Modifiers="Ctrl+Shift" Key="N"         Command="{StaticResource CreateDir}"/>
+                <KeyBinding                        Key="Enter"     Command="{StaticResource Enter}"/>
+                <KeyBinding Modifiers="Shift"      Key="Tab"       Command="{StaticResource EditLast}"/>
+                <KeyBinding                        Key="Tab"       Command="{StaticResource EditNext}"/>
+                <KeyBinding                        Key="F2"        Command="{StaticResource Rename}"/>
+                <KeyBinding                        Key="Delete"    Command="{StaticResource Delete}"/>
+                <KeyBinding                        Key="Esc"       Command="{StaticResource Esc}"/>
+                <KeyBinding Modifiers="Ctrl"       Key="X"         Command="{StaticResource Cut}"/>
+                <KeyBinding Modifiers="Ctrl"       Key="C"         Command="{StaticResource Copy}"/>
+                <KeyBinding Modifiers="Ctrl"       Key="D"         Command="{StaticResource Duplicate}"/>
+                <KeyBinding Modifiers="Shift"      Key="Delete"    Command="{StaticResource Cut}"/>
+                <KeyBinding Modifiers="Ctrl"       Key="V"         Command="{StaticResource Paste}"/>
+                <KeyBinding Modifiers="Shift"      Key="Insert"    Command="{StaticResource Paste}"/>
+                <KeyBinding Modifiers="Shift"      Key="Esc"       Command="{StaticResource Stop}"/>
+            </DataGrid.InputBindings>
+            <DataGrid.Resources>
+                <Style TargetType="DataGridRow">
+                    <EventSetter Event="MouseDoubleClick" Handler="DataGridRow_MouseDoubleClick"/>
+                </Style>
+                <Style TargetType="DataGridCell">
+                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="DataGridCell_PreviewMouseLeftButtonDown"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Type}">
+                            <Setter Property="Focusable" Value="False"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Link}">
+                            <Setter Property="Focusable" Value="False"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Pression}">
+                            <Setter Property="Focusable" Value="False"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.User}">
+                            <Setter Property="Focusable" Value="False"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Group}">
+                            <Setter Property="Focusable" Value="False"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.DeviceNum}">
+                            <Setter Property="Focusable" Value="False"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Size}">
+                            <Setter Property="Focusable" Value="False"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Time}">
+                            <Setter Property="Focusable" Value="False"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="{x:Static local:Resources.FileName}"  IsReadOnly="True" Binding="{Binding Name, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" x:Name="FilesNameCol"/>
+                <DataGridTextColumn Header="{x:Static local:Resources.Type}"      IsReadOnly="True" Binding="{Binding Type}"/>
+                <DataGridTextColumn Header="{x:Static local:Resources.DeviceNum}" IsReadOnly="True" Binding="{Binding DeviceNum}"/>
+                <DataGridTextColumn Header="{x:Static local:Resources.Link}"      IsReadOnly="True" Binding="{Binding Link}"/>
+                <DataGridTextColumn Header="{x:Static local:Resources.Pression}"  IsReadOnly="True" Binding="{Binding Pression}"/>
+                <DataGridTextColumn Header="{x:Static local:Resources.User}"      IsReadOnly="True" Binding="{Binding User}"/>
+                <DataGridTextColumn Header="{x:Static local:Resources.Group}"     IsReadOnly="True" Binding="{Binding Group}"/>
+                <DataGridTextColumn Header="{x:Static local:Resources.Size}"      IsReadOnly="True" Binding="{Binding Size}"/>
+                <DataGridTextColumn Header="{x:Static local:Resources.Time}"      IsReadOnly="True" Binding="{Binding DateTime}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
 </Window>

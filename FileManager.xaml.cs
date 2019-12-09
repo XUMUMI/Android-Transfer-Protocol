@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,9 +20,16 @@ namespace Android_Transfer_Protocol
         public FileManager()
         {
             InitializeComponent();
-            Title = $"{Properties.Resources.ATP} | {Adb.Device.Model}";
+            SetTitle();
+            Adb.SetStatus = SetStatus;
             ForceReflush();
             SetStatus($"{Properties.Resources.Connect} {Properties.Resources.Success}");
+        }
+
+        private void SetTitle()
+        {
+            Title = $"{Properties.Resources.ATP} | {Adb.CurrentDevice.Model}";
+            if (Adb.CurrentDevice.Root) Title += $" | {Properties.Resources.Rooted}";
         }
 
         private void SetStatus(string status = null)
@@ -40,11 +48,11 @@ namespace Android_Transfer_Protocol
         {
             if (!Adb.CheckPath())
             {
-                MessageBox.Show($"\"{Adb.Device.Model}\" {Properties.Resources.ConnectFailed}",
+                Stop();
+                MessageBox.Show($"\"{Adb.CurrentDevice.Model}\" {Properties.Resources.ConnectFailed}",
                                 Properties.Resources.Error,
                                 MessageBoxButton.OK,
                                 MessageBoxImage.Error);
-                new DeviceChoose().Show();
                 Close();
             }
             return true;
@@ -93,7 +101,7 @@ namespace Android_Transfer_Protocol
         private void OpenDir(string path)
         {
             if (path[path.Length - 1] != '/') path += '/';
-            LoadDir(Adb.OpenFilesList(ref FilesListData, path, SetStatus));
+            LoadDir(Adb.OpenFilesList(ref FilesListData, path));
         }
 
         /**<summary>刷新</summary>**/
@@ -240,11 +248,11 @@ namespace Android_Transfer_Protocol
         private void Upper_Executed(object sender, ExecutedRoutedEventArgs e) => Upper();
 
         /**<summary>后退</summary>**/
-        private void Last() => LoadDir(Adb.LastFileList(ref FilesListData, SetStatus));
+        private void Last() => LoadDir(Adb.LastFileList(ref FilesListData));
         private void Last_Executed(object sender, ExecutedRoutedEventArgs e) => Last();
 
         /**<summary>前进</summary>**/
-        private void Next() => LoadDir(Adb.NextFileList(ref FilesListData, SetStatus));
+        private void Next() => LoadDir(Adb.NextFileList(ref FilesListData));
         private void Next_Executed(object sender, ExecutedRoutedEventArgs e) => Next();
 
 
@@ -287,7 +295,7 @@ namespace Android_Transfer_Protocol
             FilesList.Focus();
             /* 避免文件名冲突, 添加前缀 */
             while (Adb.CheckPath($"{Adb.Path}{file_name}")) file_name = $"{Properties.Resources.New}{file_name}";
-            AFile new_file = new AFile { Name = file_name, Type = type };
+            var new_file = new AFile { Name = file_name, Type = type };
             FilesListData.Add(new_file);
             IsNewFile = true;
             BeginRename(new_file);
@@ -325,7 +333,7 @@ namespace Android_Transfer_Protocol
             /* 同名无需操作 */
             if (NewName == OldName) return;
             /* 如果没出错 */
-            if (!ShowErrMessage(Adb.Rename(NewName, OldName, SetStatus))) file.Name = NewName;
+            if (!ShowErrMessage(Adb.Rename(NewName, OldName))) file.Name = NewName;
             else file.Name = OldName;
 
             /* 清空新文件名缓存 */
@@ -358,7 +366,7 @@ namespace Android_Transfer_Protocol
             if (FilesNameCol.IsReadOnly) return;
 
             FilesNameCol.IsReadOnly = true;
-            EditingFile.Name = EditingFile.Name.Replace("/", "");
+            EditingFile.Name = EditingFile.Name.Replace("/", string.Empty);
             if (IsNewFile) CreateEnding();
             else Rename(EditingFile);
             IsNewFile = false;
@@ -391,7 +399,7 @@ namespace Android_Transfer_Protocol
             if (task?.Status == TaskStatus.Running) return;
             task = new Task(() =>
             {
-                ShowErrMessage(Adb.Move(old_path, file_name => CoverTip(file_name), SetStatus));
+                ShowErrMessage(Adb.Move(old_path, file_name => CoverTip(file_name)));
                 Reflush();
             });
             task.Start();
@@ -400,22 +408,22 @@ namespace Android_Transfer_Protocol
         /**<summary>复制</summary>**/
         private void Copy() => Sent2Clipboard(false);
         private void Copy_Executed(object sender, ExecutedRoutedEventArgs e) => Copy();
-        private void Duplication(string old_path)
+        private void Duplicate(string old_path)
         {
             if (task?.Status == TaskStatus.Running) return;
             task = new Task(() =>
             {
-                ShowErrMessage(Adb.Copy(old_path, file_name => CoverTip(file_name), SetStatus));
+                ShowErrMessage(Adb.Copy(old_path, file_name => CoverTip(file_name)));
                 Reflush();
             });
             task.Start();
         }
-        private void Duplication_Executed(object sender, ExecutedRoutedEventArgs e)
+        private void Duplicate_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             if (FilesList.SelectedItems.Cast<AFile>().ToList() is IList<AFile> files)
             {
                 if (files.Count < 1) return;
-                Duplication(Adb.Files2String(files));
+                Duplicate(Adb.Files2String(files));
                 Reflush();
             }
         }
@@ -430,7 +438,7 @@ namespace Android_Transfer_Protocol
                     Move(old_path);
                     Clipboard.Clear();
                 }
-                else Duplication(old_path);
+                else Duplicate(old_path);
                 IsMove = false;
             }
         }
@@ -460,7 +468,7 @@ namespace Android_Transfer_Protocol
                 if (!DeleteTip(files_name)) return;
                  task = new Task(() =>
                 {
-                    ShowWarnMessage(Adb.Delete(Adb.Files2String(files), SetStatus));
+                    ShowWarnMessage(Adb.Delete(Adb.Files2String(files)));
                     Reflush();
                 });
                 task.Start();
@@ -483,11 +491,61 @@ namespace Android_Transfer_Protocol
 
         private void Esc_Executed(object sender, ExecutedRoutedEventArgs e)
         {
+            if (FilesList.SelectedIndex < 0) Stop();
             if (!FilesNameCol.IsReadOnly && SelectedFiles.ContainsKey(Adb.Path)) SelectedFiles[Adb.Path].Name = NewName = OldName;
-            else Stop();
             CancelSelectOrEdit();
         }
 
         private void Stop_Executed(object sender, ExecutedRoutedEventArgs e) => Stop();
+
+        private bool ClosingRequest()
+        {
+            bool ret = true;
+            if (task?.Status == TaskStatus.Running)
+            {
+                if (MessageBox.Show(Properties.Resources.Message_ExitConfirm,
+                                Properties.Resources.Tip,
+                                MessageBoxButton.YesNo,
+                                MessageBoxImage.Question)
+                == MessageBoxResult.Yes) Stop();
+                else ret = false;
+            }
+            return ret;
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!ClosingRequest()) e.Cancel = true;
+        }
+        private void Window_Closed(object sender, EventArgs e) => new DeviceChoose().Show();
+
+        /***** 菜单 *****/
+        private void RootChange(Func<bool> Change)
+        {
+            if (Change())
+            {
+                SetTitle();
+                Reflush();
+            }
+            else MessageBox.Show(Properties.Resources.Message_OperationFailed,
+                                 Properties.Resources.Error,
+                                 MessageBoxButton.OK,
+                                 MessageBoxImage.Error);
+        }
+
+        /**<summary>提权</summary>**/
+        private void Elevation_Click(object sender, RoutedEventArgs e) => RootChange(Adb.Root);
+
+        /**<summary>降权</summary>**/
+        private void Revoke_Click(object sender, RoutedEventArgs e) => RootChange(Adb.UnRoot);
+
+        /**<summary>全选</summary>**/
+        private void SelectAll(object sender, RoutedEventArgs e) => FilesList.SelectAll();
+
+        /**<summary>取消选中</summary>**/
+        private void CancelSelected(object sender, RoutedEventArgs e) => FilesList.SelectedIndex = -1;
+
+        /**<summary>断开连接</summary>**/
+        private void Disconnect_Click(object sender, RoutedEventArgs e) => Close();
     }
 }

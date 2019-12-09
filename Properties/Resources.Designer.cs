@@ -133,7 +133,7 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
-        ///   查找类似 连接失败或丢失 的本地化字符串。
+        ///   查找类似 连接丢失或被拒绝 的本地化字符串。
         /// </summary>
         public static string ConnectFailed {
             get {
@@ -207,9 +207,9 @@ namespace Android_Transfer_Protocol.Properties {
         /// <summary>
         ///   查找类似 副本 的本地化字符串。
         /// </summary>
-        public static string Duplication {
+        public static string Duplicate {
             get {
-                return ResourceManager.GetString("Duplication", resourceCulture);
+                return ResourceManager.GetString("Duplicate", resourceCulture);
             }
         }
         
@@ -322,11 +322,83 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
+        ///   查找类似 授权(_A) 的本地化字符串。
+        /// </summary>
+        public static string Menu_Authorization {
+            get {
+                return ResourceManager.GetString("Menu_Authorization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 后退(_B) 的本地化字符串。
+        /// </summary>
+        public static string Menu_Back {
+            get {
+                return ResourceManager.GetString("Menu_Back", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 浏览(_B) 的本地化字符串。
+        /// </summary>
+        public static string Menu_Browse {
+            get {
+                return ResourceManager.GetString("Menu_Browse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 取消选中 的本地化字符串。
+        /// </summary>
+        public static string Menu_CancelSelected {
+            get {
+                return ResourceManager.GetString("Menu_CancelSelected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 检查更新(_C) 的本地化字符串。
         /// </summary>
         public static string Menu_CheckUpdate {
             get {
                 return ResourceManager.GetString("Menu_CheckUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 复制(_C) 的本地化字符串。
+        /// </summary>
+        public static string Menu_Copy {
+            get {
+                return ResourceManager.GetString("Menu_Copy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 剪切(_C) 的本地化字符串。
+        /// </summary>
+        public static string Menu_Cut {
+            get {
+                return ResourceManager.GetString("Menu_Cut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 撤销授权(_D) 的本地化字符串。
+        /// </summary>
+        public static string Menu_Deauthorization {
+            get {
+                return ResourceManager.GetString("Menu_Deauthorization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 删除(_D) 的本地化字符串。
+        /// </summary>
+        public static string Menu_Delete {
+            get {
+                return ResourceManager.GetString("Menu_Delete", resourceCulture);
             }
         }
         
@@ -340,11 +412,47 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
-        ///   查找类似 断开连接(_D) 的本地化字符串。
+        ///   查找类似 断开连接 的本地化字符串。
         /// </summary>
         public static string Menu_Disconnect {
             get {
                 return ResourceManager.GetString("Menu_Disconnect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 副本(_E) 的本地化字符串。
+        /// </summary>
+        public static string Menu_Duplicate {
+            get {
+                return ResourceManager.GetString("Menu_Duplicate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 编辑(_E) 的本地化字符串。
+        /// </summary>
+        public static string Menu_Edit {
+            get {
+                return ResourceManager.GetString("Menu_Edit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 尝试提权(_E) 的本地化字符串。
+        /// </summary>
+        public static string Menu_Elevation {
+            get {
+                return ResourceManager.GetString("Menu_Elevation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 退出(_X) 的本地化字符串。
+        /// </summary>
+        public static string Menu_Exit {
+            get {
+                return ResourceManager.GetString("Menu_Exit", resourceCulture);
             }
         }
         
@@ -354,6 +462,15 @@ namespace Android_Transfer_Protocol.Properties {
         public static string Menu_ForcedReflush {
             get {
                 return ResourceManager.GetString("Menu_ForcedReflush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 前进(_F) 的本地化字符串。
+        /// </summary>
+        public static string Menu_Forward {
+            get {
+                return ResourceManager.GetString("Menu_Forward", resourceCulture);
             }
         }
         
@@ -376,11 +493,47 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
+        ///   查找类似 粘贴(_V) 的本地化字符串。
+        /// </summary>
+        public static string Menu_Paste {
+            get {
+                return ResourceManager.GetString("Menu_Paste", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 刷新(_R) 的本地化字符串。
         /// </summary>
         public static string Menu_Reflush {
             get {
                 return ResourceManager.GetString("Menu_Reflush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 重命名(_R) 的本地化字符串。
+        /// </summary>
+        public static string Menu_Rename {
+            get {
+                return ResourceManager.GetString("Menu_Rename", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 全选(_A) 的本地化字符串。
+        /// </summary>
+        public static string Menu_SelectAll {
+            get {
+                return ResourceManager.GetString("Menu_SelectAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 上一级(_U) 的本地化字符串。
+        /// </summary>
+        public static string Menu_Upper {
+            get {
+                return ResourceManager.GetString("Menu_Upper", resourceCulture);
             }
         }
         
@@ -394,7 +547,7 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
-        ///   查找类似 此设备不允许通过该发生断开连接 的本地化字符串。
+        ///   查找类似 此设备不允许通过这种方式断开连接 的本地化字符串。
         /// </summary>
         public static string Message_CanNoDisconnect {
             get {
@@ -421,11 +574,38 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
+        ///   查找类似 你确定要断开与该设备的连接吗? 的本地化字符串。
+        /// </summary>
+        public static string Message_DisconnectConfirm {
+            get {
+                return ResourceManager.GetString("Message_DisconnectConfirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 有任务尚未完成, 关闭该窗口将中断任务, 确定要继续退出吗? 的本地化字符串。
+        /// </summary>
+        public static string Message_ExitConfirm {
+            get {
+                return ResourceManager.GetString("Message_ExitConfirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 请输入地址! 的本地化字符串。
         /// </summary>
         public static string Message_NoAddressTip {
             get {
                 return ResourceManager.GetString("Message_NoAddressTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 操作失败 的本地化字符串。
+        /// </summary>
+        public static string Message_OperationFailed {
+            get {
+                return ResourceManager.GetString("Message_OperationFailed", resourceCulture);
             }
         }
         
@@ -574,6 +754,15 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
+        ///   查找类似 恢复模式 的本地化字符串。
+        /// </summary>
+        public static string RECOVERY {
+            get {
+                return ResourceManager.GetString("RECOVERY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 刷新 的本地化字符串。
         /// </summary>
         public static string Reflush {
@@ -606,6 +795,15 @@ namespace Android_Transfer_Protocol.Properties {
         public static string Renaming {
             get {
                 return ResourceManager.GetString("Renaming", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 已获 root 授权 的本地化字符串。
+        /// </summary>
+        public static string Rooted {
+            get {
+                return ResourceManager.GetString("Rooted", resourceCulture);
             }
         }
         

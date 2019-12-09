@@ -72,7 +72,7 @@ namespace Android_Transfer_Protocol
         /**<summary>添加设备事件</summary>**/
         private void Add_Device_Execute(object sender, ExecutedRoutedEventArgs e)
         {
-            AddDevice add_device = new AddDevice();
+            var add_device = new AddDevice();
             add_device.ShowDialog();
             Reflush();
         }
@@ -87,10 +87,10 @@ namespace Android_Transfer_Protocol
                 return;
             }
 
-            Adb.Device = CurrentDevice;
+            Adb.ChangeDevice(CurrentDevice);
             if (Adb.CheckPath())
             {
-                FileManager file_manager = new FileManager();
+                var file_manager = new FileManager();
                 file_manager.Show();
                 Close();
             }
@@ -112,6 +112,12 @@ namespace Android_Transfer_Protocol
         {
             if (CurrentDevice != null)
             {
+                if (MessageBox.Show(Properties.Resources.Message_DisconnectConfirm,
+                                    Properties.Resources.Tip,
+                                    MessageBoxButton.YesNo,
+                                    MessageBoxImage.Question)
+                    == MessageBoxResult.No) return;
+
                 string[] message = Adb.Disconnect(CurrentDevice);
 
                 if (!string.IsNullOrEmpty(message[Adb.RESULT]))
@@ -166,5 +172,6 @@ namespace Android_Transfer_Protocol
                 OpenDevice();
             }
         }
+        private void Exit_Click(object sender, RoutedEventArgs e) => Application.Current.Shutdown();
     }
 }

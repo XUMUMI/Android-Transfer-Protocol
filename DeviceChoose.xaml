@@ -30,57 +30,53 @@
         <KeyBinding Key="F5" Command="{StaticResource Reflush}"/>
         <KeyBinding Modifiers="Ctrl" Key="R" Command="{StaticResource Reflush}"/>
     </Window.InputBindings>
-    <Grid FocusManager.FocusedElement="{Binding ElementName=DevicesList}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="97*"/>
-            <ColumnDefinition Width="42*"/>
-        </Grid.ColumnDefinitions>
-        <DockPanel Grid.ColumnSpan="2">
-            <Menu DockPanel.Dock="Top">
-                <MenuItem Header="{x:Static local:Resources.Menu_Device}">
-                    <MenuItem Header="{x:Static local:Resources.Menu_AddDevice}" InputGestureText="Ctrl + N" Command="{StaticResource AddDevice}"/>
-                    <MenuItem Header="{x:Static local:Resources.Menu_Disconnect}" InputGestureText="Delete" Command="{StaticResource Disconnect}"/>
-                    <MenuItem Header="{x:Static local:Resources.Menu_Reflush}" InputGestureText="F5" Command="{StaticResource Reflush}"/>
-                    <MenuItem Header="{x:Static local:Resources.Menu_ForcedReflush}" InputGestureText="Ctrl + F5" Command="{StaticResource ForceReflush}"/>
-                </MenuItem>
-                <MenuItem Header="{x:Static local:Resources.Menu_Help}">
-                    <MenuItem Header="{x:Static local:Resources.Menu_About}"/>
-                    <MenuItem Header="{x:Static local:Resources.Menu_CheckUpdate}"/>
-                    <MenuItem Header="{x:Static local:Resources.Menu_HowToUse}"/>
-                </MenuItem>
-            </Menu>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="{x:Static local:Resources.Menu_Device}">
+                <MenuItem Header="{x:Static local:Resources.Menu_AddDevice}" InputGestureText="Ctrl + N" Command="{StaticResource AddDevice}"/>
+                <MenuItem Header="{x:Static local:Resources.Menu_Disconnect}" InputGestureText="Delete" Command="{StaticResource Disconnect}"/>
+                <MenuItem Header="{x:Static local:Resources.Menu_Reflush}" InputGestureText="F5" Command="{StaticResource Reflush}"/>
+                <MenuItem Header="{x:Static local:Resources.Menu_ForcedReflush}" InputGestureText="Ctrl + F5" Command="{StaticResource ForceReflush}"/>
+                <Separator/>
+                <MenuItem Header="{x:Static local:Resources.Menu_Exit}" InputGestureText="Ctrl + F4" Click="Exit_Click"/>
+            </MenuItem>
+            <MenuItem Header="{x:Static local:Resources.Menu_Help}">
+                <MenuItem Header="{x:Static local:Resources.Menu_About}"/>
+                <MenuItem Header="{x:Static local:Resources.Menu_CheckUpdate}"/>
+                <MenuItem Header="{x:Static local:Resources.Menu_HowToUse}"/>
+            </MenuItem>
+        </Menu>
 
-            <DataGrid x:Name="DevicesList" 
-                      AutoGenerateColumns="False" 
-                      IsReadOnly="True" 
-                      CanUserReorderColumns="False" 
-                      SelectionMode="Single" 
-                      CanUserResizeColumns="False" 
-                      CanUserResizeRows="False" 
-                      HeadersVisibility="Column"
-                      SelectedCellsChanged="DevicesList_SelectedCellsChanged"
-                      MouseDown="DevicesList_MouseDown">
-                <DataGrid.InputBindings>
-                    <KeyBinding Key="Enter" Command="{StaticResource Open}"/>
-                    <KeyBinding Key="Delete" Command="{StaticResource Disconnect}"/>
-                </DataGrid.InputBindings>
-                <DataGrid.Resources>
-                    <Style TargetType="DataGridRow">
-                        <EventSetter Event="MouseDoubleClick" Handler="DataGridRow_MouseDoubleClick"/>
-                    </Style>
-                </DataGrid.Resources>
-                <DataGrid.VerticalGridLinesBrush>
-                    <SolidColorBrush Color="Black" Opacity="0.1"/>
-                </DataGrid.VerticalGridLinesBrush>
-                <DataGrid.HorizontalGridLinesBrush>
-                    <SolidColorBrush Color="Black" Opacity="0.1"/>
-                </DataGrid.HorizontalGridLinesBrush>
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="{x:Static local:Resources.UsbSerialNum}" Binding="{Binding UsbSerialNum}"/>
-                    <DataGridTextColumn Header="{x:Static local:Resources.Model}" Binding="{Binding Model}"/>
-                    <DataGridTextColumn Header="{x:Static local:Resources.Status}" Binding="{Binding Status}"/>
-                </DataGrid.Columns>
-            </DataGrid>
-        </DockPanel>
-    </Grid>
+        <DataGrid x:Name="DevicesList" 
+                    AutoGenerateColumns="False" 
+                    IsReadOnly="True" 
+                    CanUserReorderColumns="False" 
+                    SelectionMode="Single" 
+                    CanUserResizeColumns="False" 
+                    CanUserResizeRows="False" 
+                    HeadersVisibility="Column"
+                    SelectedCellsChanged="DevicesList_SelectedCellsChanged"
+                    MouseDown="DevicesList_MouseDown">
+            <DataGrid.InputBindings>
+                <KeyBinding Key="Enter" Command="{StaticResource Open}"/>
+                <KeyBinding Key="Delete" Command="{StaticResource Disconnect}"/>
+            </DataGrid.InputBindings>
+            <DataGrid.Resources>
+                <Style TargetType="DataGridRow">
+                    <EventSetter Event="MouseDoubleClick" Handler="DataGridRow_MouseDoubleClick"/>
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.VerticalGridLinesBrush>
+                <SolidColorBrush Color="Black" Opacity="0.1"/>
+            </DataGrid.VerticalGridLinesBrush>
+            <DataGrid.HorizontalGridLinesBrush>
+                <SolidColorBrush Color="Black" Opacity="0.1"/>
+            </DataGrid.HorizontalGridLinesBrush>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="{x:Static local:Resources.UsbSerialNum}" Binding="{Binding UsbSerialNum}"/>
+                <DataGridTextColumn Header="{x:Static local:Resources.Model}" Binding="{Binding Model}"/>
+                <DataGridTextColumn Header="{x:Static local:Resources.Status}" Binding="{Binding Status}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
 </Window>
