@@ -82,10 +82,7 @@ namespace Android_Transfer_Protocol
 
         private void OpenDevice()
         {
-            if (CurrentDevice == null)
-            {
-                return;
-            }
+            if (CurrentDevice == null) return;
 
             Adb.ChangeDevice(CurrentDevice);
             if (Adb.CheckPath())

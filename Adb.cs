@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Timers;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace Android_Transfer_Protocol
@@ -18,43 +20,42 @@ namespace Android_Transfer_Protocol
         private const string ADB = "adb\\adb.exe";
         private const string CONNECT = "connect";
         private const string CP = "cp -a";
-        private const string CP_HEAD = "cp: ";
         private const string DELETE = "rm -rf";
-        private const string DELETE_HEAD = "rm: ";
         private const string DISCONNECT = "disconnect";
         private const string GET_DEVICES = "devices -l";
         private const string GET_USER = "whoami";
         private const string SHELL = "shell";
         private const string KILL_SERVER = "kill-server";
-        private const string LS = "ls -allh";
+        private const string LS = "ls -alh";
         private const string MKDIR = "mkdir -p";
-        private const string MKDIR_HEAD = "mkdir: ";
         private const string MV = "mv";
-        private const string MV_HEAD = "mv: ";
+        private const string PUSH = "push";
+        private const string PULL = "pull";
         private const string REMOUNT = "remount";
         private const string ROOT = "root";
-        private const string TIME_ZONE_DATA = "tzdata";
         private const string TOUCH = "touch";
-        private const string TOUCH_HEAD = "touch: ";
         private const string UNROOT = "unroot";
 
         public static readonly string PATH_ERROR = Properties.Resources.PathError;
 
-        /* 调用 CMD 进程, 只创建一次 */
-        private static readonly Process Command = new Process
+        private static readonly ProcessStartInfo AdbInfo = new ProcessStartInfo
         {
-            StartInfo =
-            {
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                FileName = ADB,
-                RedirectStandardError = true,
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                StandardOutputEncoding = Encoding.UTF8,
-                StandardErrorEncoding = Encoding.UTF8
-            }
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            FileName = ADB,
+            RedirectStandardError = true,
+            RedirectStandardInput = true,
+            RedirectStandardOutput = true,
+            StandardOutputEncoding = Encoding.UTF8,
+            StandardErrorEncoding = Encoding.UTF8
         };
+
+        private static readonly Dictionary<String, Process> ProcessList = new Dictionary<string, Process>();
+
+        //private static readonly Process Command = new Process()
+        //{
+        //    StartInfo = AdbInfo
+        //};
 
         /***** 运行函数 *****/
 
@@ -67,36 +68,51 @@ namespace Android_Transfer_Protocol
         /* 缓存 */
         private static readonly Dictionary<string, ObservableCollection<AFile>> FilesListCache = new Dictionary<string, ObservableCollection<AFile>>();
 
-        public static Action<string> SetStatus = null;
-
         /* 当前操作设备, 在执行运行函数前必须先指定 */
         public static Device CurrentDevice { get; private set; }
+        private static int ColCount = 7;
 
         public static void ChangeDevice(Device device)
         {
             CurrentDevice = device ?? throw new ArgumentNullException(nameof(device));
+            ColCount = new Regex("[\\s]+").Replace(Ls("/")[RESULT].Split('\n')[1], " ").Split(' ').Count();
             FlushCache();
             Path = "/";
             PathHistory.Clear();
             Step = 0;
         }
 
+        /* 状态处理 action */
+        public static Action<string> SetStatus { private get; set; } = null;
         private static void Status(string message) => SetStatus?.Invoke(message);
 
         /**<summary>执行 ADB 命令, 返回结果字符串和错误字符串</summary>**/
-        private static string[] Exec(string command = "")
+        private static string[] Exec(string command = "", string name = null)
         {
             var ret = new string[2];
-            Command.StartInfo.Arguments = command;
+
+            if (string.IsNullOrEmpty(name)) name = command;
+
+            ProcessList.Add(name, new Process() { StartInfo = AdbInfo });
+            ProcessList[name].StartInfo.Arguments = command;
+            ProcessList[name].EnableRaisingEvents = true;
+            ProcessList[name].Exited += (sender, e) => ProcessList.Remove(name);
+
             Dispatcher.CurrentDispatcher.Invoke(() =>
             {
                 try
                 {
-                    Command.Start();
-                    ret[RESULT] = Command.StandardOutput.ReadToEnd()?.Replace("\r", string.Empty);
-                    ret[ERROR] = Command.StandardError.ReadToEnd()?.Replace("\r", string.Empty);
+                    ProcessList[name].Start();
+                    ret[RESULT] = ProcessList[name]?.StandardOutput.ReadToEnd()?.Replace("\r", string.Empty);
+                    ret[ERROR] = ProcessList[name]?.StandardError.ReadToEnd()?.Replace("\r", string.Empty);
+                    ret[ERROR] = ret[ERROR].IndexOf(":") > 0 ? ret[ERROR].Substring(ret[ERROR].IndexOf(":") + 2) : ret[ERROR];
+                    ProcessList[name].WaitForExit();
                 }
                 catch (InvalidOperationException e)
+                {
+                    _ = e;
+                }
+                catch (KeyNotFoundException e)
                 {
                     _ = e;
                 }
@@ -109,7 +125,7 @@ namespace Android_Transfer_Protocol
         }
 
         /**<summary>执行 Shell 命令, 返回结果字符串和错误字符串</summary>**/
-        private static string[] Shell(string command) => Exec($"-s {CurrentDevice.UsbSerialNum} {SHELL} {command}");
+        private static string[] Shell(string command, string name = null) => Exec($"-s {CurrentDevice.UsbSerialNum} {SHELL} {command}", name);
 
         /**<summary>检测 ADB 是否错误</summary>**/
         public static bool CheckAdb() => string.IsNullOrEmpty(Exec()[ERROR]);
@@ -139,6 +155,48 @@ namespace Android_Transfer_Protocol
                 FlushCache();
             }
             return !CurrentDevice.Root;
+        }
+
+        /***** 传输函数 *****/
+
+        /**<summary>获取本地文件名</summary>**/
+        private static string GetLoaclFileName(string path)
+        {
+            int file_name_index = path.LastIndexOf('\\') + 1;
+            return file_name_index < path.Length ? path.Substring(path.LastIndexOf('\\') + 1) : path;
+        }
+
+        /**<summary>上传</summary>**/
+        private static string[] Push(string remote_path, string local_path)
+        {
+            var timer = new Timer(1000);
+            timer.Elapsed += (sender, e) => SetStatus($"↑{GetLoaclFileName(local_path)}");
+            timer.Start();
+            string[] ret = Exec($"-s {CurrentDevice.UsbSerialNum} {PUSH} \"{local_path}\" \"{remote_path}\"");
+            timer.Stop();
+            return ret;
+        }
+
+        public static string UpLoad(string[] local_paths_list, string remote_path, Func<string, bool> cover)
+        {
+            StopFlag = false;
+            var ret = new List<string>();
+            foreach (string local_path in local_paths_list)
+            {
+                if (StopFlag) break;
+                string file_name = GetLoaclFileName(local_path);
+                if (CheckPath($"{remote_path}{file_name}") && !cover(file_name)) continue;
+                ret.Add(Push(remote_path + file_name, local_path)[RESULT]);
+            }
+            FlushCache(remote_path);
+            ret.RemoveAll(message => string.IsNullOrEmpty(message));
+            return string.Join("\n", ret);
+        }
+
+        /**<summary>下载</summary>**/
+        private static string[] Pull(string local_path, string remote_path)
+        {
+            return Exec($"-s {CurrentDevice.UsbSerialNum} {PULL} {remote_path} {local_path}");
         }
 
 
@@ -236,7 +294,7 @@ namespace Android_Transfer_Protocol
         };
 
         /**<summary>字符串转文件类, 返回无法处理的字符串</summary>**/
-        private static string String2Afile(string sfile, bool std_time = true)
+        private static string String2Afile(string sfile)
         {
             FileCache = null;
             /* 空字符串直接返回 null */
@@ -248,7 +306,8 @@ namespace Android_Transfer_Protocol
             if (FileBuf[index].Length == 10)
             {
                 /* 不记录当前路径和上一层路径 */
-                if (FileBuf[8].Trim().Equals(".") || FileBuf[8].Trim().Equals("..")) return null;
+                if (FileBuf[ColCount - 1].Trim().Equals(".") || 
+                    FileBuf[ColCount - 1].Trim().Equals("..")) return null;
 
                 /* 新建文件对象并初始化 类型、权限、用户和组 */
                 FileCache = new AFile
@@ -269,12 +328,9 @@ namespace Android_Transfer_Protocol
                 FileCache.Size = FileBuf[++index].Trim();
 
                 /* 日期 */
-                if (std_time)
-                {
-                    FileCache.DateTime = $"{FileBuf[++index].Trim()} {FileBuf[++index].Trim().Substring(0, 8)}";
-                    ++index;
-                }
-                else FileCache.DateTime = $"{FileBuf[++index].Trim()} {FileBuf[++index].Trim()} {FileBuf[++index].Trim()}";
+                int col = ColCount - index - 2;
+                FileCache.DateTime = $"{FileBuf[++index].Trim()}";
+                while (--col > 0) FileCache.DateTime += $"{FileBuf[++index]}";
 
                 /* 文件名和链接地址可能带空格, 因此需要读取到结尾或链接符处 */
                 FileCache.Name = FileBuf[++index].Remove(0, 1);
@@ -330,7 +386,6 @@ namespace Android_Transfer_Protocol
 
             var error_messages = new List<string>();
             string error_message;
-            bool std_time = true;
 
             string[] FilesStringList = ExecResult[ERROR].Split('\n');
             foreach (string file in FilesStringList)
@@ -343,13 +398,12 @@ namespace Android_Transfer_Protocol
             FilesStringList = ExecResult[RESULT].Split('\n');
             foreach (string file in FilesStringList)
             {
-                error_message = String2Afile(file, std_time);
+                error_message = String2Afile(file);
                 if (FileCache != null) files_list.Add(FileCache);
                 else if (error_message != null)
                 {
-                    if (new Regex(TIME_ZONE_DATA).IsMatch(error_message)) std_time = false;
                     if (new Regex("total").IsMatch(error_message)) continue;
-                    error_messages.Add(file.Replace("\n", string.Empty));
+                    error_messages.Add(error_message.Substring(error_message.IndexOf(":") + 2).Replace("\n", string.Empty));
                 }
             }
 
@@ -454,8 +508,8 @@ namespace Android_Transfer_Protocol
             return Shell($"{command} {FileNameEscape(name)}")[ERROR];
         }
 
-        public static string CreateFile(string file_name) => Create(TOUCH, file_name).Replace(TOUCH_HEAD, string.Empty);
-        public static string CreateDir(string dir_name) => Create(MKDIR, dir_name).Replace(MKDIR_HEAD, string.Empty);
+        public static string CreateFile(string file_name) => Create(TOUCH, file_name);
+        public static string CreateDir(string dir_name) => Create(MKDIR, dir_name);
 
 
         /**<summary>粘贴</summary>**/
@@ -465,7 +519,7 @@ namespace Android_Transfer_Protocol
             if (!CheckPath(old_path)) return $"{Properties.Resources.InvalidPath}: {old_path}";
             old_path = FileNameEscape(old_path);
             new_path = FileNameEscape(new_path);
-            return Shell($"{command} {old_path}  {new_path}")[ERROR];
+            return Shell($"{command} {old_path} {new_path}")[ERROR];
         }
 
         /*** 复制 ***/
@@ -473,11 +527,29 @@ namespace Android_Transfer_Protocol
         private static string Cp(string new_path, string old_path)
         {
             Status($"{old_path} >=> {new_path}");
-            return Paste(new_path, old_path, CP)?.Replace(CP_HEAD, string.Empty);
+            return Paste(new_path, old_path, CP);
         }
 
-        /**<summary>复制</summary>**/
-        public static string Copy(string old_files, Func<string, bool> cover)
+        /**<summary>生成一个副本名称</summary>**/
+        private static string CopyRename(string path, string old_file_name)
+        {
+            int suffix_pos = old_file_name.LastIndexOf('.');
+            if (suffix_pos < 1) suffix_pos = old_file_name.Length;
+            string suffix = old_file_name.Substring(suffix_pos, old_file_name.Length - suffix_pos);
+            string new_file_name = $"{old_file_name.Remove(suffix_pos, old_file_name.Length - suffix_pos)}_{Properties.Resources.Duplicate}";
+            if (CheckPath($"{path}{new_file_name}{suffix}"))
+            {
+                int same_name_index = 2;
+                while (CheckPath($"{path}{new_file_name}({same_name_index}){suffix}")) ++same_name_index;
+                new_file_name = $"{new_file_name}({same_name_index}){suffix}";
+            }
+            else new_file_name = $"{new_file_name}{suffix}";
+            return new_file_name;
+        }
+
+        
+        /**<summary>通过剪贴板来源的复制</summary>**/
+        public static string Copy(string new_path, string old_files, Func<string, bool> cover)
         {
             StopFlag = false;
             var ret = new List<string>();
@@ -486,25 +558,26 @@ namespace Android_Transfer_Protocol
             foreach (string old_file_name in old_files_list.Skip(1))
             {
                 if (StopFlag) break;
-                string new_file_name = old_file_name;
-                if(old_path == Path)
-                {
-                    int suffix_pos = new_file_name.LastIndexOf('.');
-                    if (suffix_pos < 1) suffix_pos = new_file_name.Length;
-                    string suffix = new_file_name.Substring(suffix_pos, new_file_name.Length - suffix_pos);
-                    new_file_name = $"{new_file_name.Remove(suffix_pos, new_file_name.Length - suffix_pos)}_{Properties.Resources.Duplicate}";
-                    if(CheckPath($"{Path}{new_file_name}{suffix}"))
-                    {
-                        int same_name_index = 2;
-                        while(CheckPath($"{Path}{new_file_name}({same_name_index}){suffix}")) ++same_name_index;
-                        new_file_name = $"{new_file_name}({same_name_index}){suffix}";
-                    }
-                    else new_file_name = $"{new_file_name}{suffix}";
-                }
-                if (CheckPath($"{Path}{new_file_name}") && !cover(old_file_name)) continue;
-                ret.Add(Cp($"{Path}{new_file_name}", $"{old_path}{old_file_name}"));
+                string new_file_name = old_path == new_path ? CopyRename(old_path, old_file_name) : old_file_name;
+                if (CheckPath($"{new_path}{new_file_name}") && !cover(old_file_name)) continue;
+                ret.Add(Cp($"{new_path}{new_file_name}", $"{old_path}{old_file_name}"));
             }
-            FlushCache(Path);
+            FlushCache(new_path);
+            ret.RemoveAll(message => string.IsNullOrEmpty(message));
+            return string.Join("\n", ret);
+        }
+
+        /**<summary>同一目录下的副本</summary>**/
+        public static string Copy(string path, IList<AFile> old_files)
+        {
+            StopFlag = false;
+            var ret = new List<string>();
+            foreach (AFile old_file in old_files)
+            {
+                if (StopFlag) break;
+                ret.Add(Cp($"{path}{CopyRename(path, old_file.Name)}", $"{path}{old_file.Name}"));
+            }
+            FlushCache(path);
             ret.RemoveAll(message => string.IsNullOrEmpty(message));
             return string.Join("\n", ret);
         }
@@ -516,7 +589,7 @@ namespace Android_Transfer_Protocol
             Status($"{old_path} => {new_path}");
             /* 目标与源相同, 不需要任何操作 */
             if (new_path == old_path) return null;
-            else return Paste(new_path, old_path, MV)?.Replace(MV_HEAD, string.Empty);
+            else return Paste(new_path, old_path, MV);
         }
 
         /**<summary>移动</summary>**/
@@ -546,18 +619,16 @@ namespace Android_Transfer_Protocol
         }
 
         /*** 删除 ***/
-        public static string Delete(string files)
+        public static string Delete(string path, IList<AFile> files)
         {
             StopFlag = false;
             var ret = new List<string>();
-            string[] files_list = files.Split('\n');
-            string path = files_list[0];
-            foreach (string file_name in files_list.Skip(1))
+            foreach (AFile file in files)
             {
                 if (StopFlag) break;
-                Status($"{Properties.Resources.Deleting} {file_name}");
-                ret.Add(Shell($"{DELETE} {FileNameEscape($"{path}{file_name}")}")[ERROR]?.Replace(DELETE_HEAD, string.Empty).Replace("\n", string.Empty));
-                FlushCache($"{path}{file_name}/");
+                Status($"{Properties.Resources.Deleting} {file.Name}");
+                ret.Add(Shell($"{DELETE} {FileNameEscape($"{path}{file.Name}")}")[ERROR]?.Replace("\n", string.Empty));
+                FlushCache($"{path}{file.Name}/");
             }
             FlushCache(path);
             ret.RemoveAll(message => string.IsNullOrEmpty(message));
@@ -573,10 +644,12 @@ namespace Android_Transfer_Protocol
         public static void Stop()
         {
             StopFlag = true;
-            Command.Close();
             try
             {
-                if(!Command.HasExited) Command.Kill();
+                foreach (KeyValuePair<string, Process> process in ProcessList)
+                {
+                    process.Value.Kill();
+                }
             }
             catch (InvalidOperationException e)
             {

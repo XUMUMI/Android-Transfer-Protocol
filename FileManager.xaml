@@ -6,7 +6,6 @@
         xmlns:local="clr-namespace:Android_Transfer_Protocol.Properties"
         mc:Ignorable="d"
         Closing="Window_Closing"
-        Closed="Window_Closed"
         Title="{x:Static local:Resources.ATP}">
     <Window.Resources>
         <RoutedCommand x:Key="CancelPath"/>
@@ -122,6 +121,12 @@
                     </Button>
                 </StatusBarItem>
             </StatusBar>
+        </DockPanel>
+        <DockPanel DockPanel.Dock="Bottom" Visibility="Collapsed">
+            <ListBox>
+                <Label Content="test"/>
+                <Label Content="test"/>
+            </ListBox>
         </DockPanel>
         <DataGrid 
             x:Name="FilesList" 
