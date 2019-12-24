@@ -610,6 +610,15 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
+        ///   查找类似 你确定要停止所有操作吗? 的本地化字符串。
+        /// </summary>
+        public static string Message_StopTip {
+            get {
+                return ResourceManager.GetString("Message_StopTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 设备型号 的本地化字符串。
         /// </summary>
         public static string Model {
@@ -921,6 +930,15 @@ namespace Android_Transfer_Protocol.Properties {
         public static string Unknow {
             get {
                 return ResourceManager.GetString("Unknow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 正在上传 的本地化字符串。
+        /// </summary>
+        public static string Uploading {
+            get {
+                return ResourceManager.GetString("Uploading", resourceCulture);
             }
         }
         

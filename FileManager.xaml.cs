@@ -19,28 +19,68 @@ namespace Android_Transfer_Protocol
         private readonly Dictionary<string, AFile> SelectedFiles = new Dictionary<string, AFile>();
         public FileManager()
         {
+            Resources["Tasks"] = TaskList.Keys;
             InitializeComponent();
             SetTitle();
-            Adb.SetStatus = SetStatus;
+            Adb.AddStatus = AddStatus;
+            Adb.RmStatus = RmStatus;
             ForceReflush();
-            SetStatus($"{Properties.Resources.Connect} {Properties.Resources.Success}");
+            DefaultStatus($"{Properties.Resources.Connect} {Properties.Resources.Success}");
+            new DispatcherTimer(
+                TimeSpan.FromSeconds(1),
+                DispatcherPriority.Normal,
+                (sender, e) => SetStatus(),
+                Dispatcher.CurrentDispatcher)
+            .Start();
         }
 
+        /* 设置标题 */
         private void SetTitle()
         {
             Title = $"{Properties.Resources.ATP} | {Adb.CurrentDevice.Model}";
-            if (Adb.CurrentDevice.Root) Title += $" | {Properties.Resources.Rooted}";
+            if (Adb.CheckRoot(Adb.CurrentDevice)) Title += $" | {Properties.Resources.Rooted}";
         }
 
-        private void SetStatus(string status = null)
+        /* 状态栏 */
+        readonly List<string> StatusList = new List<string> { null, };
+
+        int StatusIndex = -1;
+        private void SetStatus(int index = -1)
         {
-            StatusMessage.Dispatcher.Invoke(() =>
-                StatusMessage.Text =
-                    string.IsNullOrEmpty(status) ?
-                    $"{Properties.Resources.Sum}: {FilesList.Items.Count}, " +
-                    $"{Properties.Resources.Selected}: {FilesList.SelectedItems.Count}" :
-                    status
-            );
+            StatusIndex = index >= 0 && index < StatusList.Count ? index : (StatusIndex + 1) % StatusList.Count;
+            try
+            {
+                Dispatcher.Invoke(() => StatusMessage.Text = StatusList[StatusIndex]);
+            }
+            catch (ArgumentOutOfRangeException e)
+            {
+                Dispatcher.Invoke(() => StatusMessage.Text = StatusList[0]);
+                _ = e;
+            }
+            TaskListBox.Dispatcher.Invoke(TaskListBox.Items.Refresh);
+        }
+
+        private void DefaultStatus(string status = null)
+        {
+            StatusList[0] = string.IsNullOrEmpty(status) ?
+               $"{Properties.Resources.Sum}: {FilesList.Items.Count}, " +
+               $"{Properties.Resources.Selected}: {FilesList.SelectedItems.Count}" :
+               status;
+            SetStatus(0);
+        }
+
+        private void AddStatus(string status)
+        {
+            StatusList.Add(status);
+            SetStatus(StatusList.Count - 1);
+        }
+
+        private void RmStatus(string status) => StatusList.Remove(status);
+
+
+        private void StatusMessage_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            TaskListBox.Visibility = TaskListBox.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
         }
 
         /**<summary>检查连接状态</summary>**/
@@ -94,7 +134,7 @@ namespace Android_Transfer_Protocol
             }, DispatcherPriority.ContextIdle);
 
             FilesList.Focus();
-            SetStatus();
+            DefaultStatus();
         }
 
         /**<summary>打开目标路径</summary>**/
@@ -107,13 +147,14 @@ namespace Android_Transfer_Protocol
         /**<summary>刷新</summary>**/
         private void Reflush()
         {
-            SetStatus($"{Properties.Resources.Reflushing}");
+            AddStatus($"{Properties.Resources.Reflushing}");
             FilesList.Dispatcher.Invoke(() =>
             {
                 FilesList.CommitEdit();
                 FilesList.CancelEdit();
                 OpenDir(Adb.Path);
             });
+            RmStatus($"{Properties.Resources.Reflushing}");
         }
 
         /**<summary>刷新缓存</summary>**/
@@ -199,7 +240,7 @@ namespace Android_Transfer_Protocol
                 SelectedFiles[Adb.Path] = file;
                 FilesList.CurrentCell = new DataGridCellInfo(file, FilesNameCol);
             }
-            SetStatus();
+            DefaultStatus();
         }
 
         /**<summary>鼠标点击数据表</summary>**/
@@ -285,12 +326,12 @@ namespace Android_Transfer_Protocol
         private bool IsNewFile = false;
         private AFile EditingFile = null;
         private bool IsMove = false;
-        private uint TaskCount = 0;
+        private Dictionary<string, Task> TaskList = new Dictionary<string, Task>();
 
         /**<summary>新建</summary>**/
         private void Preview_Create(string file_name, string type)
         {
-            SetStatus(Properties.Resources.Creating);
+            AddStatus(Properties.Resources.Creating);
             if (!FilesNameCol.IsReadOnly) return;
             FilesList.Focus();
             /* 避免文件名冲突, 添加前缀 */
@@ -311,7 +352,7 @@ namespace Android_Transfer_Protocol
             }
             string error_message = EditingFile.Type.Equals(AFile.FILE) ? Adb.CreateFile(EditingFile.Name) : Adb.CreateDir(EditingFile.Name);
             if (ShowErrMessage(error_message)) FilesListData.Remove(EditingFile);
-            SetStatus();
+            RmStatus(Properties.Resources.Creating);
         }
 
         /**<summary>新建文件夹</summary>**/
@@ -394,15 +435,16 @@ namespace Android_Transfer_Protocol
         private void Cut_Executed(object sender, ExecutedRoutedEventArgs e) => Cut();
 
         /**<summary>移动</summary>**/
-        private void Move(string old_path)
+        private void Move(string path)
         {
-            ++TaskCount;
-            Task.Factory.StartNew(() =>
+            string task_name = $"{Properties.Resources.Moving} {path.Replace("\n", ", ")}";
+            if (TaskList.ContainsKey(task_name)) return;
+            TaskList.Add(task_name, Task.Factory.StartNew(() =>
             {
-                ShowErrMessage(Adb.Move(old_path, file_name => CoverTip(file_name)));
+                ShowErrMessage(Adb.Move(path, CoverTip, task_name));
                 Reflush();
-                --TaskCount;
-            });
+                TaskList.Remove(task_name);
+            }));
         }
 
         /**<summary>复制</summary>**/
@@ -410,26 +452,28 @@ namespace Android_Transfer_Protocol
 
         private void Copy_Executed(object sender, ExecutedRoutedEventArgs e) => Copy();
 
-        private void Duplicate(string old_files)
+        private void Duplicate(string files)
         {
-            ++TaskCount;
-            Task.Factory.StartNew(() =>
+            string task_name = $"{Properties.Resources.Copying} {files.Replace("\n", ", ")}";
+            if (TaskList.ContainsKey(task_name)) return;
+            TaskList.Add(task_name, Task.Factory.StartNew(() =>
             {
-                ShowErrMessage(Adb.Copy(Adb.Path, old_files, file_name => CoverTip(file_name)));
+                ShowErrMessage(Adb.Copy(Adb.Path, files, CoverTip, task_name));
                 Reflush();
-                --TaskCount;
-            });
+                TaskList.Remove(task_name);
+            }));
         }
 
-        private void Duplicate(IList<AFile> old_files)
+        private void Duplicate(IList<AFile> files)
         {
-            ++TaskCount;
-            Task.Factory.StartNew(() =>
+            string task_name = $"{Properties.Resources.Copying} {string.Join(", ", files.Select(file => file.Name))}";
+            if (TaskList.ContainsKey(task_name)) return;
+            TaskList.Add(task_name, Task.Factory.StartNew(() =>
             {
-                ShowErrMessage(Adb.Copy(Adb.Path, old_files));
+                ShowErrMessage(Adb.Copy(Adb.Path, files, task_name));
                 Reflush();
-                --TaskCount;
-            });
+                TaskList.Remove(task_name);
+            }));
         }
 
         private void Duplicate_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -479,13 +523,14 @@ namespace Android_Transfer_Protocol
                 if (files.Count < 1) return;
                 string files_name = Adb.Files2String(files);
                 if (!DeleteTip(files_name)) return;
-                ++TaskCount;
-                Task.Factory.StartNew(() =>
+                string task_name = $"{Properties.Resources.Deleting} {string.Join(", ", files.Select(file => file.Name))}";
+                if (TaskList.ContainsKey(task_name)) return;
+                TaskList.Add(task_name, Task.Factory.StartNew(() =>
                 {
-                    ShowWarnMessage(Adb.Delete(Adb.Path, files));
+                    ShowWarnMessage(Adb.Delete(Adb.Path, files, task_name));
                     Reflush();
-                    --TaskCount;
-                });
+                    TaskList.Remove(task_name);
+                }));
             }
         }
 
@@ -494,36 +539,45 @@ namespace Android_Transfer_Protocol
         /**<summary>拖入文件</summary>**/
         private void FilesList_Drop(object sender, DragEventArgs e)
         {
-            ++TaskCount;
-            Task.Factory.StartNew(() =>
+            if (e.Data.GetData(DataFormats.FileDrop) is string[] files)
             {
-                if (e.Data.GetData(DataFormats.FileDrop) is string[] files)
+                string task_name = $"{Properties.Resources.Uploading} {string.Join(", ", files)}";
+                if (TaskList.ContainsKey(task_name)) return;
+                TaskList.Add(task_name, Task.Factory.StartNew(() =>
                 {
-                    ShowWarnMessage(Adb.UpLoad(files, Adb.Path, file_name => CoverTip(file_name)));
+                    ShowWarnMessage(Adb.UpLoad(files, Adb.Path, CoverTip, task_name));
                     Reflush();
-                }
-                --TaskCount;
-            });
+                    TaskList.Remove(task_name);
+                }));
+            }
         }
 
         /*** 停 ***/
-        private void Stop() => Adb.Stop();
+        private void Stop(string task_name = null) => Adb.Stop(task_name);
+
+        private void TaskListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => Stop((sender as ListBox).SelectedItem.ToString());
 
         private void Esc_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if (FilesList.SelectedIndex < 0) Stop();
             if (!FilesNameCol.IsReadOnly && SelectedFiles.ContainsKey(Adb.Path)) SelectedFiles[Adb.Path].Name = NewName = OldName;
             CancelSelectOrEdit();
         }
 
-        private void Stop_Executed(object sender, ExecutedRoutedEventArgs e) => Stop();
+        private void Stop_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (MessageBox.Show(Properties.Resources.Message_StopTip,
+                                Properties.Resources.Tip,
+                                MessageBoxButton.YesNo,
+                                MessageBoxImage.Question)
+                == MessageBoxResult.Yes) Stop();
+        }
 
         private bool ClosingRequest()
         {
             bool ret = true;
-            if (TaskCount > 0)
+            if (TaskList.Count > 0)
             {
-                if (MessageBox.Show($"{Properties.Resources.Message_ExitConfirm}({Properties.Resources.Sum} {TaskCount})",
+                if (MessageBox.Show($"{Properties.Resources.Message_ExitConfirm}({Properties.Resources.Sum} {TaskList.Count})",
                                     Properties.Resources.Tip,
                                     MessageBoxButton.YesNo,
                                     MessageBoxImage.Question)

@@ -111,7 +111,7 @@
         <DockPanel DockPanel.Dock="Bottom">
             <StatusBar>
                 <StatusBarItem>
-                    <TextBlock x:Name="StatusMessage"/>
+                    <TextBlock x:Name="StatusMessage" MouseDown="StatusMessage_MouseDown"/>
                 </StatusBarItem>
                 <StatusBarItem HorizontalContentAlignment="Right" Padding="0">
                     <Button x:Name="StopButton" Content=" × " Command="{StaticResource Stop}" BorderBrush="{x:Null}" Foreground="Black">
@@ -122,11 +122,8 @@
                 </StatusBarItem>
             </StatusBar>
         </DockPanel>
-        <DockPanel DockPanel.Dock="Bottom" Visibility="Collapsed">
-            <ListBox>
-                <Label Content="test"/>
-                <Label Content="test"/>
-            </ListBox>
+        <DockPanel DockPanel.Dock="Bottom">
+            <ListBox x:Name="TaskListBox" Visibility="Collapsed" ItemsSource="{DynamicResource Tasks}" MouseDoubleClick="TaskListBox_MouseDoubleClick"/>
         </DockPanel>
         <DataGrid 
             x:Name="FilesList" 

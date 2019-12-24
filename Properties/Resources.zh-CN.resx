@@ -300,6 +300,9 @@
   <data name="Message_OperationFailed" xml:space="preserve">
     <value>操作失败</value>
   </data>
+  <data name="Message_StopTip" xml:space="preserve">
+    <value>你确定要停止所有操作吗?</value>
+  </data>
   <data name="Model" xml:space="preserve">
     <value>设备型号</value>
   </data>
@@ -398,6 +401,9 @@
   </data>
   <data name="Unknow" xml:space="preserve">
     <value>未知</value>
+  </data>
+  <data name="Uploading" xml:space="preserve">
+    <value>正在上传</value>
   </data>
   <data name="UsbSerialNum" xml:space="preserve">
     <value>设备名</value>
