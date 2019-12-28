@@ -42,6 +42,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -128,6 +130,54 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Android Transfer Protocol_ml.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\back.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\back.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\forward.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="back.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="forward.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="rename.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="reflush.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="upper.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="upload.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="download.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="cut.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="copy.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="paste.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="unfold.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="fold.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

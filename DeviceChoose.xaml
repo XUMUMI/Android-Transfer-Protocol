@@ -32,13 +32,15 @@
     </Window.InputBindings>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="{x:Static local:Resources.Menu_Device}">
-                <MenuItem Header="{x:Static local:Resources.Menu_AddDevice}" InputGestureText="Ctrl + N" Command="{StaticResource AddDevice}"/>
-                <MenuItem Header="{x:Static local:Resources.Menu_Disconnect}" InputGestureText="Delete" Command="{StaticResource Disconnect}"/>
-                <MenuItem Header="{x:Static local:Resources.Menu_Reflush}" InputGestureText="F5" Command="{StaticResource Reflush}"/>
-                <MenuItem Header="{x:Static local:Resources.Menu_ForcedReflush}" InputGestureText="Ctrl + F5" Command="{StaticResource ForceReflush}"/>
+            <MenuItem     Header="{x:Static local:Resources.Menu_Device}" SubmenuOpened="Menu_Device_Opened">
+                <MenuItem Header="{x:Static local:Resources.Menu_Connect}"       InputGestureText="Enter"     Command="{StaticResource Open}"/>
+                <MenuItem Header="{x:Static local:Resources.Menu_Disconnect}"    InputGestureText="Delete"    Command="{StaticResource Disconnect}"/>
+                <MenuItem Header="{x:Static local:Resources.Menu_AddDevice}"     InputGestureText="Ctrl + N"  Command="{StaticResource AddDevice}"/>
                 <Separator/>
-                <MenuItem Header="{x:Static local:Resources.Menu_Exit}" InputGestureText="Ctrl + F4" Click="Exit_Click"/>
+                <MenuItem Header="{x:Static local:Resources.Menu_Reflush}"       InputGestureText="F5"        Command="{StaticResource Reflush}"/>
+                <MenuItem Header="{x:Static local:Resources.Menu_ForcedReflush}" InputGestureText="Ctrl + F5" Command="{StaticResource ForceReflush}" x:Name="Menu_ForcedReflush" Visibility="Collapsed"/>
+                <Separator/>
+                <MenuItem Header="{x:Static local:Resources.Menu_Exit}"          InputGestureText="Ctrl + F4" Click="Exit_Click"/>
             </MenuItem>
             <MenuItem Header="{x:Static local:Resources.Menu_Help}">
                 <MenuItem Header="{x:Static local:Resources.Menu_About}"/>
@@ -62,8 +64,15 @@
                 <KeyBinding Key="Delete" Command="{StaticResource Disconnect}"/>
             </DataGrid.InputBindings>
             <DataGrid.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White"/>
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#0078D7"/>
+                <ContextMenu x:Key="RowContextMenu">
+                    <MenuItem Header="{x:Static local:Resources.Menu_Connect}" Command="{StaticResource Open}"/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_Disconnect}" Command="{StaticResource Disconnect}"/>
+                </ContextMenu>
                 <Style TargetType="DataGridRow">
                     <EventSetter Event="MouseDoubleClick" Handler="DataGridRow_MouseDoubleClick"/>
+                    <Setter Property="ContextMenu" Value="{StaticResource RowContextMenu}"/>
                 </Style>
             </DataGrid.Resources>
             <DataGrid.VerticalGridLinesBrush>
@@ -77,6 +86,13 @@
                 <DataGridTextColumn Header="{x:Static local:Resources.Model}" Binding="{Binding Model}"/>
                 <DataGridTextColumn Header="{x:Static local:Resources.Status}" Binding="{Binding Status}"/>
             </DataGrid.Columns>
+            <DataGrid.ContextMenu>
+                <ContextMenu Opened="Menu_Device_Opened">
+                    <MenuItem Header="{x:Static local:Resources.Menu_AddDevice}" Command="{StaticResource AddDevice}"/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_Reflush}" Command="{StaticResource Reflush}"/>
+                    <MenuItem Header="{x:Static local:Resources.Menu_ForcedReflush}" Command="{StaticResource ForceReflush}" x:Name="Context_ForcedReflush" Visibility="Collapsed"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
         </DataGrid>
     </DockPanel>
 </Window>

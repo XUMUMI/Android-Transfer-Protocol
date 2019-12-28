@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -188,9 +189,25 @@ namespace Android_Transfer_Protocol
         }
 
         /**<summary>下载</summary>**/
-        private static string[] Pull(string local_path, string remote_path, string task_name)
+        private static string[] Pull(string local_path, string remote_path, string file_name, string task_name)
         {
-            return Exec($"-s {CurrentDevice.UsbSerialNum} {PULL} {remote_path} {local_path}", task_name);
+            SetStatus($"{Properties.Resources.Downloading} {file_name}");
+            string[] ret = Exec($"-s {CurrentDevice.UsbSerialNum} {PULL} \"{remote_path}{file_name}\" \"{local_path}{file_name}\"", task_name);
+            UnsetStatus($"{Properties.Resources.Downloading} {file_name}");
+            return ret;
+        }
+
+        public static string Download(string local_path, string remote_path, IList<AFile> files, Func<string, bool> cover, string task_name)
+        {
+            StopFlag = string.Empty;
+            string ret = "";
+            foreach (AFile file in files)
+            {
+                if (StopFlag.Equals(task_name) || StopFlag.Equals(ALL)) break;
+                if (File.Exists($"{local_path}{file.Name}") && !cover(file.Name)) continue;
+                ret += Pull(local_path, remote_path, file.Name, task_name)[RESULT];
+            }
+            return ret;
         }
 
 
@@ -620,7 +637,7 @@ namespace Android_Transfer_Protocol
             {
                 if (StopFlag.Equals(ALL)) break;
                 SetStatus($"{Properties.Resources.Deleting} {file.Name}");
-                ret.Add(Shell($"{DELETE} {FileNameEscape($"{path}{file.Name}")}")[ERROR]?.Replace("\n", string.Empty));
+                ret.Add(Shell($"{DELETE} {FileNameEscape($"{path}{file.Name}")}", task_name)[ERROR]?.Replace("\n", string.Empty));
                 FlushCache($"{path}{file.Name}/");
                 UnsetStatus($"{Properties.Resources.Deleting} {file.Name}");
             }

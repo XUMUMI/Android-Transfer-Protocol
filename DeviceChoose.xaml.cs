@@ -103,7 +103,6 @@ namespace Android_Transfer_Protocol
         /**<summary>选中设备事件</summary>**/
         private void OpenDevice_Execute(object sender, ExecutedRoutedEventArgs e) => OpenDevice();
 
-
         /***** 断开连接 *****/
         private void Disconnect_Execute(object sender, ExecutedRoutedEventArgs e)
         {
@@ -154,21 +153,26 @@ namespace Android_Transfer_Protocol
             /* 获取鼠标点击的内容 */
             IInputElement CilckedControl = DevicesList.InputHitTest(e.GetPosition(DevicesList));
             /* 点击空白处则取消选中状态 */
-            if (CilckedControl is ScrollViewer || CilckedControl is Border)
-            {
-                CancelSelect();
-            }
+            if (CilckedControl is ScrollViewer || CilckedControl is Border) CancelSelect();
         }
 
         /**<summary>鼠标双击数据行事件</summary>**/
         private void DataGridRow_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             /* 左键双击 */
-            if (e.ChangedButton.Equals(MouseButton.Left))
-            {
-                OpenDevice();
-            }
+            if (e.ChangedButton.Equals(MouseButton.Left)) OpenDevice();
         }
         private void Exit_Click(object sender, RoutedEventArgs e) => Application.Current.Shutdown();
+
+        /***** 菜单事件 *****/
+
+        /**<summary>菜单展开</summary>**/
+        private void Menu_Device_Opened(object sender, RoutedEventArgs e)
+        {
+            Menu_ForcedReflush.Visibility = Context_ForcedReflush.Visibility =
+                Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) ?
+                Visibility.Visible :
+                Visibility.Collapsed;
+        }
     }
 }

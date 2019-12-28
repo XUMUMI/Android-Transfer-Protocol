@@ -126,8 +126,38 @@
   <data name="ATP" xml:space="preserve">
     <value>Android Transfer Protocol</value>
   </data>
+  <data name="Authorization" xml:space="preserve">
+    <value>授权</value>
+  </data>
   <data name="BLOCK" xml:space="preserve">
     <value>块设备</value>
+  </data>
+  <data name="Button_Back" xml:space="preserve">
+    <value>后退(Alt + ←)</value>
+  </data>
+  <data name="Button_Copy" xml:space="preserve">
+    <value>复制(Ctrl + C)</value>
+  </data>
+  <data name="Button_Cut" xml:space="preserve">
+    <value>剪切(Ctrl + X)</value>
+  </data>
+  <data name="Button_Delete" xml:space="preserve">
+    <value>删除(Delete)</value>
+  </data>
+  <data name="Button_Forward" xml:space="preserve">
+    <value>前进(Alt + →)</value>
+  </data>
+  <data name="Button_Paste" xml:space="preserve">
+    <value>粘贴(Ctrl + V)</value>
+  </data>
+  <data name="Button_Reflush" xml:space="preserve">
+    <value>刷新(F5)</value>
+  </data>
+  <data name="Button_Rename" xml:space="preserve">
+    <value>重命名(F2)</value>
+  </data>
+  <data name="Button_Upper" xml:space="preserve">
+    <value>上一级(Alt + ↑)</value>
   </data>
   <data name="Cancel" xml:space="preserve">
     <value>取消</value>
@@ -150,8 +180,14 @@
   <data name="Copying" xml:space="preserve">
     <value>正在复制</value>
   </data>
+  <data name="Create" xml:space="preserve">
+    <value>新建</value>
+  </data>
   <data name="Creating" xml:space="preserve">
     <value>正在新建文件(夹)</value>
+  </data>
+  <data name="Deauthorization" xml:space="preserve">
+    <value>撤销授权</value>
   </data>
   <data name="Delete" xml:space="preserve">
     <value>删除</value>
@@ -165,8 +201,20 @@
   <data name="DIR" xml:space="preserve">
     <value>文件夹</value>
   </data>
+  <data name="Disconnect" xml:space="preserve">
+    <value>断开连接</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>下载</value>
+  </data>
+  <data name="Downloading" xml:space="preserve">
+    <value>正在下载</value>
+  </data>
   <data name="Duplication" xml:space="preserve">
     <value>副本</value>
+  </data>
+  <data name="Elevation" xml:space="preserve">
+    <value>尝试提权</value>
   </data>
   <data name="Error" xml:space="preserve">
     <value>错误</value>
@@ -180,8 +228,14 @@
   <data name="FileName" xml:space="preserve">
     <value>文件名</value>
   </data>
+  <data name="ForcedReflush" xml:space="preserve">
+    <value>强制刷新</value>
+  </data>
   <data name="Group" xml:space="preserve">
     <value>组</value>
+  </data>
+  <data name="HideTools" xml:space="preserve">
+    <value>隐藏工具栏</value>
   </data>
   <data name="InvalidPath" xml:space="preserve">
     <value>无效路径</value>
@@ -213,17 +267,23 @@
   <data name="Menu_Browse" xml:space="preserve">
     <value>浏览(_B)</value>
   </data>
+  <data name="Menu_BrowseTools" xml:space="preserve">
+    <value>浏览(_B)</value>
+  </data>
   <data name="Menu_CancelSelected" xml:space="preserve">
     <value>取消选中</value>
   </data>
   <data name="Menu_CheckUpdate" xml:space="preserve">
     <value>检查更新(_C)</value>
   </data>
+  <data name="Menu_Connect" xml:space="preserve">
+    <value>连接(_C)</value>
+  </data>
   <data name="Menu_Copy" xml:space="preserve">
     <value>复制(_C)</value>
   </data>
   <data name="Menu_Cut" xml:space="preserve">
-    <value>剪切(_C)</value>
+    <value>剪切(_T)</value>
   </data>
   <data name="Menu_Deauthorization" xml:space="preserve">
     <value>撤销授权(_D)</value>
@@ -235,12 +295,18 @@
     <value>设备(_D)</value>
   </data>
   <data name="Menu_Disconnect" xml:space="preserve">
-    <value>断开连接</value>
+    <value>断开连接(_D)</value>
+  </data>
+  <data name="Menu_Download" xml:space="preserve">
+    <value>下载(_L)</value>
   </data>
   <data name="Menu_Duplicate" xml:space="preserve">
     <value>副本(_E)</value>
   </data>
   <data name="Menu_Edit" xml:space="preserve">
+    <value>编辑(_E)</value>
+  </data>
+  <data name="Menu_EditTools" xml:space="preserve">
     <value>编辑(_E)</value>
   </data>
   <data name="Menu_Elevation" xml:space="preserve">
@@ -261,8 +327,14 @@
   <data name="Menu_HowToUse" xml:space="preserve">
     <value>如何使用(_U)</value>
   </data>
+  <data name="Menu_New" xml:space="preserve">
+    <value>新建(_W)</value>
+  </data>
+  <data name="Menu_Open" xml:space="preserve">
+    <value>打开(_O)</value>
+  </data>
   <data name="Menu_Paste" xml:space="preserve">
-    <value>粘贴(_V)</value>
+    <value>粘贴(_P)</value>
   </data>
   <data name="Menu_Reflush" xml:space="preserve">
     <value>刷新(_R)</value>
@@ -273,8 +345,23 @@
   <data name="Menu_SelectAll" xml:space="preserve">
     <value>全选(_A)</value>
   </data>
+  <data name="Menu_TaskList" xml:space="preserve">
+    <value>任务列表(_T)</value>
+  </data>
+  <data name="Menu_Toolbar" xml:space="preserve">
+    <value>工具栏(_T)</value>
+  </data>
+  <data name="Menu_TransmissionTools" xml:space="preserve">
+    <value>文件传输(_T)</value>
+  </data>
+  <data name="Menu_Upload" xml:space="preserve">
+    <value>上传(_U)</value>
+  </data>
   <data name="Menu_Upper" xml:space="preserve">
     <value>上一级(_U)</value>
+  </data>
+  <data name="Menu_View" xml:space="preserve">
+    <value>视图(_V)</value>
   </data>
   <data name="Message_AddDeviceTip" xml:space="preserve">
     <value>请在地址处填写您的设备的主机名或 IP 地址, 端口默认为 5555。</value>
@@ -290,6 +377,9 @@
   </data>
   <data name="Message_DisconnectConfirm" xml:space="preserve">
     <value>你确定要断开与该设备的连接吗?</value>
+  </data>
+  <data name="Message_DownloadPath" xml:space="preserve">
+    <value>选择要保存文件的路径:</value>
   </data>
   <data name="Message_ExitConfirm" xml:space="preserve">
     <value>有任务尚未完成, 关闭该窗口将中断任务, 确定要继续退出吗?</value>
@@ -327,8 +417,14 @@
   <data name="OK" xml:space="preserve">
     <value>确定</value>
   </data>
+  <data name="Open" xml:space="preserve">
+    <value>打开</value>
+  </data>
   <data name="OperationFailed" xml:space="preserve">
     <value>操作失败</value>
+  </data>
+  <data name="Paste" xml:space="preserve">
+    <value>粘贴</value>
   </data>
   <data name="PathError" xml:space="preserve">
     <value>无法打开该文件或路径</value>
@@ -401,6 +497,9 @@
   </data>
   <data name="Unknow" xml:space="preserve">
     <value>未知</value>
+  </data>
+  <data name="Upload" xml:space="preserve">
+    <value>上传</value>
   </data>
   <data name="Uploading" xml:space="preserve">
     <value>正在上传</value>

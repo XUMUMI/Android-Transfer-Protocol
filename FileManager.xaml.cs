@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace Android_Transfer_Protocol
@@ -19,9 +20,15 @@ namespace Android_Transfer_Protocol
         private readonly Dictionary<string, AFile> SelectedFiles = new Dictionary<string, AFile>();
         public FileManager()
         {
-            Resources["Tasks"] = TaskList.Keys;
             InitializeComponent();
-            SetTitle();
+            SetTitleNRootStatus();
+            /* 绑定任务状态数据源 */
+            TaskListBox.ItemsSource = TaskList.Keys;
+            InitStatusConfig();
+        }
+
+        private void InitStatusConfig()
+        {
             Adb.AddStatus = AddStatus;
             Adb.RmStatus = RmStatus;
             ForceReflush();
@@ -35,10 +42,20 @@ namespace Android_Transfer_Protocol
         }
 
         /* 设置标题 */
-        private void SetTitle()
+        private void SetTitleNRootStatus()
         {
             Title = $"{Properties.Resources.ATP} | {Adb.CurrentDevice.Model}";
-            if (Adb.CheckRoot(Adb.CurrentDevice)) Title += $" | {Properties.Resources.Rooted}";
+            if (Adb.CheckRoot(Adb.CurrentDevice))
+            {
+                Title += $" | {Properties.Resources.Rooted}";
+                Menu_Elevation.Visibility = Context_Elevation.Visibility = Visibility.Collapsed;
+                Menu_Deauthorization.Visibility = Context_Deauthorization.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Menu_Elevation.Visibility = Context_Elevation.Visibility = Visibility.Visible;
+                Menu_Deauthorization.Visibility = Context_Deauthorization.Visibility = Visibility.Collapsed;
+            }
         }
 
         /* 状态栏 */
@@ -76,12 +93,6 @@ namespace Android_Transfer_Protocol
         }
 
         private void RmStatus(string status) => StatusList.Remove(status);
-
-
-        private void StatusMessage_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            TaskListBox.Visibility = TaskListBox.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
-        }
 
         /**<summary>检查连接状态</summary>**/
         private bool Check()
@@ -326,7 +337,7 @@ namespace Android_Transfer_Protocol
         private bool IsNewFile = false;
         private AFile EditingFile = null;
         private bool IsMove = false;
-        private Dictionary<string, Task> TaskList = new Dictionary<string, Task>();
+        private readonly Dictionary<string, Task> TaskList = new Dictionary<string, Task>();
 
         /**<summary>新建</summary>**/
         private void Preview_Create(string file_name, string type)
@@ -502,8 +513,6 @@ namespace Android_Transfer_Protocol
         }
 
         /*** 删除  ***/
-
-        /**<summary>删除文件</summary>**/
         private bool DeleteTip(string files_name)
         {
             files_name = files_name.Remove(0, files_name.IndexOf('\n'));
@@ -513,9 +522,11 @@ namespace Android_Transfer_Protocol
                             $"{files_name}",
                             Properties.Resources.Tip,
                             MessageBoxButton.YesNo,
-                            MessageBoxImage.Question) 
+                            MessageBoxImage.Question)
                 == MessageBoxResult.Yes;
         }
+
+        /**<summary>删除文件</summary>**/
         private void Delete()
         {
             if (FilesList.SelectedItems.Cast<AFile>().ToList() is IList<AFile> files)
@@ -536,21 +547,76 @@ namespace Android_Transfer_Protocol
 
         private void Delete_Executed(object sender, ExecutedRoutedEventArgs e) => Delete();
 
-        /**<summary>拖入文件</summary>**/
+        /**<summary>上传</summary>**/
+        private void Upload(string[] files)
+        {
+            string task_name = $"{Properties.Resources.Uploading} {string.Join(", ", files)}";
+            if (TaskList.ContainsKey(task_name)) return;
+            TaskList.Add(task_name, Task.Factory.StartNew(() =>
+            {
+                ShowWarnMessage(Adb.UpLoad(files, Adb.Path, CoverTip, task_name));
+                Reflush();
+                TaskList.Remove(task_name);
+            }));
+        }
+
         private void FilesList_Drop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetData(DataFormats.FileDrop) is string[] files)
+            if (e.Data.GetData(DataFormats.FileDrop) is string[] files) Upload(files);
+        }
+
+        private void Upload_Click(object sender, RoutedEventArgs e)
+        {
+            var files = new System.Windows.Forms.OpenFileDialog
             {
-                string task_name = $"{Properties.Resources.Uploading} {string.Join(", ", files)}";
+                Multiselect = true,
+                Title = Properties.Resources.Upload
+            };
+            if (files.ShowDialog() == System.Windows.Forms.DialogResult.OK) Upload(files.FileNames);
+        }
+
+        /**<summary>下载</summary>**/
+        private void Download(string path)
+        {
+            if (FilesList.SelectedItems.Cast<AFile>().ToList() is IList<AFile> files)
+            {
+                string task_name = $"{Properties.Resources.Downloading} {string.Join(", ", files.Select(file => file.Name))}";
                 if (TaskList.ContainsKey(task_name)) return;
                 TaskList.Add(task_name, Task.Factory.StartNew(() =>
                 {
-                    ShowWarnMessage(Adb.UpLoad(files, Adb.Path, CoverTip, task_name));
-                    Reflush();
+                    ShowWarnMessage(Adb.Download(path, Adb.Path, files, CoverTip, task_name));
                     TaskList.Remove(task_name);
                 }));
             }
         }
+
+        private void Download_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            var path = new System.Windows.Forms.FolderBrowserDialog
+            {
+                ShowNewFolderButton = true,
+                Description = Properties.Resources.Message_DownloadPath
+            };
+            if (path.ShowDialog() == System.Windows.Forms.DialogResult.OK) Download($"{path.SelectedPath}\\");
+        }
+
+        /*** 权限 ***/
+        private void RootChange(Func<bool> Change)
+        {
+            if (Change())
+            {
+                SetTitleNRootStatus();
+                Reflush();
+            }
+            else MessageBox.Show(Properties.Resources.Message_OperationFailed,
+                                 Properties.Resources.Error,
+                                 MessageBoxButton.OK,
+                                 MessageBoxImage.Error);
+        }
+
+        private void Root_Executed(object sender, ExecutedRoutedEventArgs e) => RootChange(Adb.Root);
+
+        private void Unroot_Executed(object sender, ExecutedRoutedEventArgs e) => RootChange(Adb.UnRoot);
 
         /*** 停 ***/
         private void Stop(string task_name = null) => Adb.Stop(task_name);
@@ -594,24 +660,6 @@ namespace Android_Transfer_Protocol
         }
 
         /***** 菜单 *****/
-        private void RootChange(Func<bool> Change)
-        {
-            if (Change())
-            {
-                SetTitle();
-                Reflush();
-            }
-            else MessageBox.Show(Properties.Resources.Message_OperationFailed,
-                                 Properties.Resources.Error,
-                                 MessageBoxButton.OK,
-                                 MessageBoxImage.Error);
-        }
-
-        /**<summary>提权</summary>**/
-        private void Elevation_Click(object sender, RoutedEventArgs e) => RootChange(Adb.Root);
-
-        /**<summary>降权</summary>**/
-        private void Revoke_Click(object sender, RoutedEventArgs e) => RootChange(Adb.UnRoot);
 
         /**<summary>全选</summary>**/
         private void SelectAll(object sender, RoutedEventArgs e) => FilesList.SelectAll();
@@ -619,7 +667,74 @@ namespace Android_Transfer_Protocol
         /**<summary>取消选中</summary>**/
         private void CancelSelected(object sender, RoutedEventArgs e) => FilesList.SelectedIndex = -1;
 
+        private void Menu_Browse_Opened(object sender, RoutedEventArgs e)
+        {
+            Menu_ForcedReflush.Visibility = Context_ForcedReflush.Visibility =
+                Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) ?
+                Visibility.Visible :
+                Visibility.Collapsed;
+        }
+
         /**<summary>断开连接</summary>**/
         private void Disconnect_Click(object sender, RoutedEventArgs e) => Close();
+
+        private void BrowseToolsToggle(object sender, RoutedEventArgs e)
+        {
+            if (BrowseTools.Visibility == Visibility.Visible)
+            {
+                BrowseTools.Visibility = Visibility.Collapsed;
+                BrowseToolsMenu.IsChecked = false;
+            }
+            else
+            {
+                BrowseTools.Visibility = Visibility.Visible;
+                BrowseToolsMenu.IsChecked = true;
+            }
+        }
+        private void TransmissionToolsToggle(object sender, RoutedEventArgs e)
+        {
+            if (TransmissionTools.Visibility == Visibility.Visible)
+            {
+                TransmissionTools.Visibility = Visibility.Collapsed;
+                TransmissionToolsMenu.IsChecked = false;
+            }
+            else
+            {
+                TransmissionTools.Visibility = Visibility.Visible;
+                TransmissionToolsMenu.IsChecked = true;
+            }
+        }
+
+        private void EditToolsToggle(object sender, RoutedEventArgs e)
+        {
+            if (EditTools.Visibility == Visibility.Visible)
+            {
+                EditTools.Visibility = Visibility.Collapsed;
+                EditToolsMenu.IsChecked = false;
+            }
+            else
+            {
+                EditTools.Visibility = Visibility.Visible;
+                EditToolsMenu.IsChecked = true;
+            }
+        }
+
+        private readonly BitmapImage foldImg = new BitmapImage(new Uri("pack://application:,,,/Android Transfer Protocol;component/fold.png"));
+        private readonly BitmapImage unfoldImg = new BitmapImage(new Uri("pack://application:,,,/Android Transfer Protocol;component/unfold.png"));
+        private void TaskListToggle(object sender, RoutedEventArgs e)
+        {
+            if (TaskListBox.Visibility == Visibility.Visible)
+            {
+                UnfoldImg.Source = unfoldImg;
+                TaskListBox.Visibility = Visibility.Collapsed;
+                TaskListMenu.IsChecked = false;
+            }
+            else
+            {
+                UnfoldImg.Source = foldImg;
+                TaskListBox.Visibility = Visibility.Visible;
+                TaskListMenu.IsChecked = true;
+            }
+        }
     }
 }
