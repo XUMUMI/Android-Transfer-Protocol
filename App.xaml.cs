@@ -7,6 +7,12 @@ namespace Android_Transfer_Protocol
     /// </summary>
     public partial class App : Application
     {
-        private void Application_Exit(object sender, ExitEventArgs e) => Adb.Stop();
+        private void Application_Startup(object sender, StartupEventArgs e) => Configure.Configurer.Read();
+        private void Application_Exit(object sender, ExitEventArgs e)
+        {
+            Adb.Stop();
+            Configure.Configurer.Save();
+        }
+
     }
 }

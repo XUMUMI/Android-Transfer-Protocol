@@ -79,16 +79,15 @@ namespace Android_Transfer_Protocol
 
 
         /***** 选中设备 *****/
-
+        private bool Opening = false;
         private void OpenDevice()
         {
-            if (CurrentDevice == null) return;
-
+            if (CurrentDevice == null || Opening) return;
+            Opening = true;
             Adb.ChangeDevice(CurrentDevice);
             if (Adb.CheckPath())
             {
-                var file_manager = new FileManager();
-                file_manager.Show();
+                new FileManager().Show();
                 Close();
             }
             else
@@ -99,6 +98,7 @@ namespace Android_Transfer_Protocol
                                 MessageBoxImage.Error);
                 Reflush();
             }
+            Opening = false;
         }
         /**<summary>选中设备事件</summary>**/
         private void OpenDevice_Execute(object sender, ExecutedRoutedEventArgs e) => OpenDevice();

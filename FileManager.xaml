@@ -3,10 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Android_Transfer_Protocol.Properties"
+        xmlns:prop="clr-namespace:Android_Transfer_Protocol.Properties"
         mc:Ignorable="d"
+        SizeChanged="Window_SizeChanged"
         Closing="Window_Closing"
-        Title="{x:Static local:Resources.ATP}">
+        Title="{x:Static prop:Resources.ATP}" MinHeight="184" MinWidth="322">
     <Window.Resources>
         <RoutedCommand x:Key="CancelPath"/>
         <RoutedCommand x:Key="Copy"/>
@@ -32,6 +33,23 @@
         <RoutedCommand x:Key="Stop"/>
         <RoutedCommand x:Key="Unroot"/>
         <RoutedCommand x:Key="Upper"/>
+        
+        <ContextMenu x:Key="HeaderContextMenu">
+            <ContextMenu.ItemContainerStyle>
+                <Style TargetType="MenuItem">
+                    <EventSetter Event="Click" Handler="HeaderToggle"/>
+                </Style>
+            </ContextMenu.ItemContainerStyle>
+            <MenuItem Header="{x:Static prop:Resources.FileName}" IsEnabled="False" IsChecked="True"/>
+            <MenuItem Header="{x:Static prop:Resources.Type}"     />
+            <MenuItem Header="{x:Static prop:Resources.DeviceNum}"/>
+            <MenuItem Header="{x:Static prop:Resources.Link}"     />
+            <MenuItem Header="{x:Static prop:Resources.Pression}" />
+            <MenuItem Header="{x:Static prop:Resources.User}"     />
+            <MenuItem Header="{x:Static prop:Resources.Group}"    />
+            <MenuItem Header="{x:Static prop:Resources.Size}"     />
+            <MenuItem Header="{x:Static prop:Resources.Time}"     />
+        </ContextMenu>
     </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="{StaticResource CancelPath}"    Executed="CancelPath_Executed"/>
@@ -71,49 +89,49 @@
         <DockPanel DockPanel.Dock="Top">
             <StackPanel>
                 <Menu IsMainMenu="True">
-                    <MenuItem     Header="{x:Static local:Resources.Menu_Device}">
-                        <MenuItem Header="{x:Static local:Resources.Menu_Elevation}"                                          Command="{StaticResource Root}"         x:Name="Menu_Elevation"/>
-                        <MenuItem Header="{x:Static local:Resources.Menu_Deauthorization}"                                    Command="{StaticResource Unroot}"       x:Name="Menu_Deauthorization"/>
+                    <MenuItem     Header="{x:Static prop:Resources.Menu_Device}">
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Elevation}"                                          Command="{StaticResource Root}"         x:Name="Menu_Elevation"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Deauthorization}"                                    Command="{StaticResource Unroot}"       x:Name="Menu_Deauthorization"/>
                         <Separator/>
-                        <MenuItem Header="{x:Static local:Resources.Menu_Disconnect}"     InputGestureText="Alt + F4"         Click="Disconnect_Click"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Disconnect}"     InputGestureText="Alt + F4"         Click="Disconnect_Click"/>
                     </MenuItem>
-                    <MenuItem     Header="{x:Static local:Resources.Menu_Browse}"         SubmenuOpened="Menu_Browse_Opened">
-                        <MenuItem Header="{x:Static local:Resources.Menu_Open}"           InputGestureText="Enter"            Command="{StaticResource Enter}"/>
+                    <MenuItem     Header="{x:Static prop:Resources.Menu_Browse}"         SubmenuOpened="Menu_Browse_Opened">
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Open}"           InputGestureText="Enter"            Command="{StaticResource Enter}"/>
                         <Separator/>
-                        <MenuItem Header="{x:Static local:Resources.Menu_Reflush}"        InputGestureText="F5"               Command="{StaticResource Reflush}"/>
-                        <MenuItem Header="{x:Static local:Resources.Menu_ForcedReflush}"  InputGestureText="Ctrl + F5"        Command="{StaticResource ForceReflush}" x:Name="Menu_ForcedReflush" Visibility="Collapsed"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Reflush}"        InputGestureText="F5"               Command="{StaticResource Reflush}"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_ForcedReflush}"  InputGestureText="Ctrl + F5"        Command="{StaticResource ForceReflush}" x:Name="Menu_ForcedReflush" Visibility="Collapsed"/>
                         <Separator/>
-                        <MenuItem Header="{x:Static local:Resources.Menu_Back}"           InputGestureText="Alt + ←"         Command="{StaticResource Last}"/>
-                        <MenuItem Header="{x:Static local:Resources.Menu_Forward}"        InputGestureText="Alt + →"         Command="{StaticResource Next}"/>
-                        <MenuItem Header="{x:Static local:Resources.Menu_Upper}"          InputGestureText="Alt + ↑"         Command="{StaticResource Upper}"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Back}"           InputGestureText="Alt + ←"         Command="{StaticResource Last}"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Forward}"        InputGestureText="Alt + →"         Command="{StaticResource Next}"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Upper}"          InputGestureText="Alt + ↑"         Command="{StaticResource Upper}"/>
                     </MenuItem>
-                    <MenuItem     Header="{x:Static local:Resources.Menu_Edit}">
-                        <MenuItem Header="{x:Static local:Resources.Menu_Cut}"            InputGestureText="Ctrl + X"         Command="{StaticResource Cut}"/>
-                        <MenuItem Header="{x:Static local:Resources.Menu_Copy}"           InputGestureText="Ctrl + C"         Command="{StaticResource Copy}"/>
-                        <MenuItem Header="{x:Static local:Resources.Menu_Duplicate}"      InputGestureText="Ctrl + D"         Command="{StaticResource Duplicate}"/>
-                        <MenuItem Header="{x:Static local:Resources.Menu_Paste}"          InputGestureText="Ctrl + V"         Command="{StaticResource Paste}"/>
+                    <MenuItem     Header="{x:Static prop:Resources.Menu_Edit}">
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Cut}"            InputGestureText="Ctrl + X"         Command="{StaticResource Cut}"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Copy}"           InputGestureText="Ctrl + C"         Command="{StaticResource Copy}"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Duplicate}"      InputGestureText="Ctrl + D"         Command="{StaticResource Duplicate}"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Paste}"          InputGestureText="Ctrl + V"         Command="{StaticResource Paste}"/>
                         <Separator/>
-                        <MenuItem Header="{x:Static local:Resources.Menu_Rename}"         InputGestureText="F2"               Command="{StaticResource Rename}"/>
-                        <MenuItem Header="{x:Static local:Resources.Menu_Delete}"         InputGestureText="Delete"           Command="{StaticResource Delete}"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Rename}"         InputGestureText="F2"               Command="{StaticResource Rename}"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Delete}"         InputGestureText="Delete"           Command="{StaticResource Delete}"/>
                         <Separator/>
-                        <MenuItem Header="{x:Static local:Resources.NewFile}"             InputGestureText="Ctrl + N"         Command="{StaticResource CreateFile}"/>
-                        <MenuItem Header="{x:Static local:Resources.NewDir}"              InputGestureText="Ctrl + Shift + N" Command="{StaticResource CreateDir}"/>
+                        <MenuItem Header="{x:Static prop:Resources.NewFile}"             InputGestureText="Ctrl + N"         Command="{StaticResource CreateFile}"/>
+                        <MenuItem Header="{x:Static prop:Resources.NewDir}"              InputGestureText="Ctrl + Shift + N" Command="{StaticResource CreateDir}"/>
                         <Separator/>
-                        <MenuItem Header="{x:Static local:Resources.Menu_SelectAll}"      InputGestureText="Ctrl + A"         Click="SelectAll"/>
-                        <MenuItem Header="{x:Static local:Resources.Menu_CancelSelected}" InputGestureText="Esc"              Click="CancelSelected"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_SelectAll}"      InputGestureText="Ctrl + A"         Click="SelectAll"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_CancelSelected}" InputGestureText="Esc"              Click="CancelSelected"/>
                     </MenuItem>
-                    <MenuItem Header="{x:Static local:Resources.Menu_View}">
-                        <MenuItem     Header="{x:Static local:Resources.Menu_Toolbar}">
-                            <MenuItem Header="{x:Static local:Resources.Menu_BrowseTools}"       IsCheckable="True"               Click="BrowseToolsToggle"       Name="BrowseToolsMenu"/>
-                            <MenuItem Header="{x:Static local:Resources.Menu_TransmissionTools}" IsCheckable="True"               Click="TransmissionToolsToggle" Name="TransmissionToolsMenu"/>
-                            <MenuItem Header="{x:Static local:Resources.Menu_EditTools}"         IsCheckable="True"               Click="EditToolsToggle"         Name="EditToolsMenu"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_View}">
+                        <MenuItem     Header="{x:Static prop:Resources.Menu_Toolbar}" Name="ToolbarMenu">
+                            <MenuItem Header="{x:Static prop:Resources.Menu_BrowseTools}"       Click="BrowseToolsToggle"       Name="BrowseToolsMenu"/>
+                            <MenuItem Header="{x:Static prop:Resources.Menu_TransmissionTools}" Click="TransmissionToolsToggle" Name="TransmissionToolsMenu"/>
+                            <MenuItem Header="{x:Static prop:Resources.Menu_EditTools}"         Click="EditToolsToggle"         Name="EditToolsMenu"/>
                         </MenuItem>
-                        <MenuItem   Header="{x:Static local:Resources.Menu_TaskList}"           IsCheckable="True"               Click="TaskListToggle"         Name="TaskListMenu"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_TaskList}"          Click="TaskListToggle"          Name="TaskListBoxMenu"/>
                     </MenuItem>
-                    <MenuItem     Header="{x:Static local:Resources.Menu_Help}">
-                        <MenuItem Header="{x:Static local:Resources.Menu_About}"/>
-                        <MenuItem Header="{x:Static local:Resources.Menu_CheckUpdate}"/>
-                        <MenuItem Header="{x:Static local:Resources.Menu_HowToUse}"/>
+                    <MenuItem     Header="{x:Static prop:Resources.Menu_Help}">
+                        <MenuItem Header="{x:Static prop:Resources.Menu_About}"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_CheckUpdate}"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_HowToUse}"/>
                     </MenuItem>
                 </Menu>
                 <ToolBarTray Orientation="Horizontal" SnapsToDevicePixels="True">
@@ -136,64 +154,64 @@
                     </ToolBarTray.Background>
                     <ToolBar Background="{x:Null}" Name="BrowseTools" Visibility="Collapsed">
                         <ToolBarPanel Orientation="Horizontal" ToolBar.OverflowMode="Never">
-                            <Button x:Name="BackButton" Command="{StaticResource Last}"         Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static local:Resources.Button_Back}">
+                            <Button x:Name="BackButton" Command="{StaticResource Last}"         Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static prop:Resources.Button_Back}">
                                 <Image Source="back.png" Style="{DynamicResource ToolBarButtonImage}"/>
                             </Button>
-                            <Button x:Name="ForwardButton" Command="{StaticResource Next}"      Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static local:Resources.Button_Forward}">
+                            <Button x:Name="ForwardButton" Command="{StaticResource Next}"      Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static prop:Resources.Button_Forward}">
                                 <Image Source="forward.png" Style="{DynamicResource ToolBarButtonImage}"/>
                             </Button>
                         </ToolBarPanel>
                         <Separator/>
                         <ToolBarPanel Orientation="Horizontal" ToolBar.OverflowMode="Never">
-                            <Button x:Name="ReflushButton" Command="{StaticResource Reflush}"   Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static local:Resources.Button_Reflush}">
+                            <Button x:Name="ReflushButton" Command="{StaticResource Reflush}"   Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static prop:Resources.Button_Reflush}">
                                 <Image Source="reflush.png" Style="{DynamicResource ToolBarButtonImage}"/>
                             </Button>
                         </ToolBarPanel>
                         <ToolBarOverflowPanel ToolBar.OverflowMode="Always">
-                            <MenuItem Header="{x:Static local:Resources.HideTools}" Click="BrowseToolsToggle"/>
+                            <MenuItem Header="{x:Static prop:Resources.HideTools}" Click="BrowseToolsToggle"/>
                         </ToolBarOverflowPanel>
                     </ToolBar>
                     <ToolBar Background="{x:Null}" Name="TransmissionTools" Visibility="Collapsed">
                         <ToolBarPanel Orientation="Horizontal" ToolBar.OverflowMode="Never">
-                            <Button x:Name="UploadButton" Command="{StaticResource Rename}"     Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static local:Resources.Upload}">
+                            <Button x:Name="UploadButton" Command="{StaticResource Rename}"     Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static prop:Resources.Upload}">
                                 <Image Source="upload.png" Style="{DynamicResource ToolBarButtonImage}"/>
                             </Button>
-                            <Button x:Name="DownloadButton" Command="{StaticResource Delete}"   Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static local:Resources.Download}">
+                            <Button x:Name="DownloadButton" Command="{StaticResource Delete}"   Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static prop:Resources.Download}">
                                 <Image Source="download.png" Style="{DynamicResource ToolBarButtonImage}"/>
                             </Button>
                         </ToolBarPanel>
                         <ToolBarOverflowPanel ToolBar.OverflowMode="Always">
-                            <MenuItem Header="{x:Static local:Resources.HideTools}" Click="TransmissionToolsToggle"/>
+                            <MenuItem Header="{x:Static prop:Resources.HideTools}" Click="TransmissionToolsToggle"/>
                         </ToolBarOverflowPanel>
                     </ToolBar>
                     <ToolBar Background="{x:Null}" Name="EditTools" Visibility="Collapsed">
                         <ToolBarPanel Orientation="Horizontal" ToolBar.OverflowMode="Never">
-                            <Button x:Name="CutButton" Command="{StaticResource Cut}"           Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static local:Resources.Button_Cut}">
+                            <Button x:Name="CutButton" Command="{StaticResource Cut}"           Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static prop:Resources.Button_Cut}">
                                 <Image Source="cut.png" Style="{DynamicResource ToolBarButtonImage}"/>
                             </Button>
-                            <Button x:Name="CopyButton" Command="{StaticResource Copy}"         Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static local:Resources.Button_Copy}">
+                            <Button x:Name="CopyButton" Command="{StaticResource Copy}"         Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static prop:Resources.Button_Copy}">
                                 <Image Source="copy.png" Style="{DynamicResource ToolBarButtonImage}"/>
                             </Button>
-                            <Button x:Name="PasteButton" Command="{StaticResource Paste}"       Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static local:Resources.Button_Paste}">
+                            <Button x:Name="PasteButton" Command="{StaticResource Paste}"       Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static prop:Resources.Button_Paste}">
                                 <Image Source="paste.png" Style="{DynamicResource ToolBarButtonImage}"/>
                             </Button>
                         </ToolBarPanel>
                         <Separator/>
                         <ToolBarPanel Orientation="Horizontal" ToolBar.OverflowMode="Never">
-                            <Button x:Name="RenameButton" Command="{StaticResource Rename}" Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static local:Resources.Button_Rename}">
+                            <Button x:Name="RenameButton" Command="{StaticResource Rename}" Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static prop:Resources.Button_Rename}">
                                 <Image Source="rename.png" Style="{DynamicResource ToolBarButtonImage}"/>
                             </Button>
-                            <Button x:Name="DeleteButton" Command="{StaticResource Delete}"    Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static local:Resources.Button_Delete}">
+                            <Button x:Name="DeleteButton" Command="{StaticResource Delete}"    Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static prop:Resources.Button_Delete}">
                                 <Image Source="delete.png" Style="{DynamicResource ToolBarButtonImage}"/>
                             </Button>
                         </ToolBarPanel>
                         <ToolBarOverflowPanel ToolBar.OverflowMode="Always">
-                            <MenuItem Header="{x:Static local:Resources.HideTools}" Click="EditToolsToggle"/>
+                            <MenuItem Header="{x:Static prop:Resources.HideTools}" Click="EditToolsToggle"/>
                         </ToolBarOverflowPanel>
                     </ToolBar>
                 </ToolBarTray>
                 <DockPanel>
-                    <Button x:Name="UpperButton" Command="{StaticResource Upper}" BorderBrush="{x:Null}" Background="{x:Null}" ToolTip="{x:Static local:Resources.Button_Upper}">
+                    <Button x:Name="UpperButton" Command="{StaticResource Upper}" BorderBrush="{x:Null}" Background="{x:Null}" ToolTip="{x:Static prop:Resources.Button_Upper}">
                         <Image Source="upper.png" Width="18" Height="18"/>
                     </Button>
                     <TextBox x:Name="PathBar"      GotFocus="PathBar_GotFocus" LostFocus="PathBar_LostFocus" PreviewMouseLeftButtonDown="PathBar_PreviewMouseLeftButtonDown">
@@ -221,7 +239,7 @@
             <ListBox x:Name="TaskListBox" Visibility="Collapsed" MouseDoubleClick="TaskListBox_MouseDoubleClick" Background="{x:Null}"/>
         </DockPanel>
         <DataGrid 
-            x:Name="FilesList" 
+            x:Name="FileList" 
             AutoGenerateColumns="False" 
             GridLinesVisibility="None" 
             HeadersVisibility="Column"
@@ -229,15 +247,15 @@
             AllowDrop="True"
             CanUserDeleteRows="False"
             BorderThickness="0"
-            SelectedCellsChanged="FilesList_SelectedCellsChanged"
-            PreviewMouseDown="FilesList_PreviewMouseDown" 
-            BeginningEdit="FilesList_BeginningEdit"
-            CellEditEnding="FilesList_CellEditEnding"
+            SelectedCellsChanged="FileList_SelectedCellsChanged"
+            PreviewMouseDown="FileList_PreviewMouseDown" 
+            BeginningEdit="FileList_BeginningEdit"
+            CellEditEnding="FileList_CellEditEnding"
             EnableRowVirtualization="True"
             VirtualizingStackPanel.VirtualizationMode ="Recycling"
             VirtualizingStackPanel.IsVirtualizing ="true"
             VirtualizingPanel.IsVirtualizingWhenGrouping="True"
-            Drop="FilesList_Drop" Background="#FFF1EDED">
+            Drop="FileList_Drop" Background="#FFF1EDED">
             <DataGrid.InputBindings>
                 <KeyBinding Modifiers="Alt"        Key="Up"        Command="{StaticResource Upper}"/>
                 <KeyBinding                        Key="Backspace" Command="{StaticResource Upper}"/>
@@ -263,77 +281,80 @@
                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White"/>
                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#0078D7"/>
                 <ContextMenu x:Key="RowContextMenu">
-                    <MenuItem Header="{x:Static local:Resources.Menu_Open}"           Command="{StaticResource Enter}"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Open}"      Command="{StaticResource Enter}"/>
                     <Separator/>
-                    <MenuItem Header="{x:Static local:Resources.Menu_Download}"  Command="{StaticResource Download}"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Download}"  Command="{StaticResource Download}"/>
                     <Separator/>
-                    <MenuItem Header="{x:Static local:Resources.Menu_Cut}"       Command="{StaticResource Cut}"/>
-                    <MenuItem Header="{x:Static local:Resources.Menu_Copy}"      Command="{StaticResource Copy}"/>
-                    <MenuItem Header="{x:Static local:Resources.Menu_Duplicate}" Command="{StaticResource Duplicate}"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Cut}"       Command="{StaticResource Cut}"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Copy}"      Command="{StaticResource Copy}"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Duplicate}" Command="{StaticResource Duplicate}"/>
                     <Separator/>
-                    <MenuItem Header="{x:Static local:Resources.Menu_Rename}"    Command="{StaticResource Rename}"/>
-                    <MenuItem Header="{x:Static local:Resources.Menu_Delete}"    Command="{StaticResource Delete}"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Rename}"    Command="{StaticResource Rename}"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Delete}"    Command="{StaticResource Delete}"/>
                 </ContextMenu>
                 <Style TargetType="DataGridRow">
                     <EventSetter Event="MouseDoubleClick" Handler="DataGridRow_MouseDoubleClick"/>
+                </Style>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="ContextMenu" Value="{StaticResource HeaderContextMenu}"/>
                 </Style>
                 <Style TargetType="DataGridCell">
                     <EventSetter Event="PreviewMouseLeftButtonDown" Handler="DataGridCell_PreviewMouseLeftButtonDown"/>
                     <Setter Property="BorderThickness" Value="0"/>
                     <Setter Property="ContextMenu" Value="{StaticResource RowContextMenu}"/>
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Type}">
+                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static prop:Resources.Type}">
                             <Setter Property="Focusable" Value="False"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Link}">
+                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static prop:Resources.Link}">
                             <Setter Property="Focusable" Value="False"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Pression}">
+                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static prop:Resources.Pression}">
                             <Setter Property="Focusable" Value="False"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.User}">
+                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static prop:Resources.User}">
                             <Setter Property="Focusable" Value="False"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Group}">
+                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static prop:Resources.Group}">
                             <Setter Property="Focusable" Value="False"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.DeviceNum}">
+                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static prop:Resources.DeviceNum}">
                             <Setter Property="Focusable" Value="False"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Size}">
+                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static prop:Resources.Size}">
                             <Setter Property="Focusable" Value="False"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static local:Resources.Time}">
+                        <DataTrigger Binding="{Binding Column.Header, RelativeSource={RelativeSource Self}}" Value="{x:Static prop:Resources.Time}">
                             <Setter Property="Focusable" Value="False"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="{x:Static local:Resources.FileName}"  IsReadOnly="True" Binding="{Binding Name, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" x:Name="FilesNameCol"/>
-                <DataGridTextColumn Header="{x:Static local:Resources.Type}"      IsReadOnly="True" Binding="{Binding Type}"/>
-                <DataGridTextColumn Header="{x:Static local:Resources.DeviceNum}" IsReadOnly="True" Binding="{Binding DeviceNum}"/>
-                <DataGridTextColumn Header="{x:Static local:Resources.Link}"      IsReadOnly="True" Binding="{Binding Link}"/>
-                <DataGridTextColumn Header="{x:Static local:Resources.Pression}"  IsReadOnly="True" Binding="{Binding Pression}"/>
-                <DataGridTextColumn Header="{x:Static local:Resources.User}"      IsReadOnly="True" Binding="{Binding User}"/>
-                <DataGridTextColumn Header="{x:Static local:Resources.Group}"     IsReadOnly="True" Binding="{Binding Group}"/>
-                <DataGridTextColumn Header="{x:Static local:Resources.Size}"      IsReadOnly="True" Binding="{Binding Size}"/>
-                <DataGridTextColumn Header="{x:Static local:Resources.Time}"      IsReadOnly="True" Binding="{Binding DateTime}"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.FileName}"  IsReadOnly="True" Binding="{Binding Name}"      x:Name="FileNameCol"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.Type}"      IsReadOnly="True" Binding="{Binding Type}"      x:Name="FileTypeCol"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.DeviceNum}" IsReadOnly="True" Binding="{Binding DeviceNum}" x:Name="FileDeviceNumCol"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.Link}"      IsReadOnly="True" Binding="{Binding Link}"      x:Name="FileLinkCol"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.Pression}"  IsReadOnly="True" Binding="{Binding Pression}"  x:Name="FilePressionCol"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.User}"      IsReadOnly="True" Binding="{Binding User}"      x:Name="FileUserCol"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.Group}"     IsReadOnly="True" Binding="{Binding Group}"     x:Name="FileGroupCol"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.Size}"      IsReadOnly="True" Binding="{Binding Size}"      x:Name="FileSizeCol"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.Time}"      IsReadOnly="True" Binding="{Binding DateTime}"  x:Name="FileDateTimeCol"/>
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu Opened="Menu_Browse_Opened">
-                    <MenuItem Header="{x:Static local:Resources.Menu_Upload}"              Click="Upload_Click"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Upload}"              Click="Upload_Click"/>
                     <Separator/>
-                    <MenuItem Header="{x:Static local:Resources.Menu_Elevation}"           Command="{StaticResource Root}"         x:Name="Context_Elevation"/>
-                    <MenuItem Header="{x:Static local:Resources.Menu_Deauthorization}"     Command="{StaticResource Unroot}"       x:Name="Context_Deauthorization"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Elevation}"           Command="{StaticResource Root}"         x:Name="Context_Elevation"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Deauthorization}"     Command="{StaticResource Unroot}"       x:Name="Context_Deauthorization"/>
                     <Separator/>
-                    <MenuItem Header="{x:Static local:Resources.Menu_Reflush}"             Command="{StaticResource Reflush}"/>
-                    <MenuItem Header="{x:Static local:Resources.Menu_ForcedReflush}"       Command="{StaticResource ForceReflush}" x:Name="Context_ForcedReflush" Visibility="Collapsed"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Reflush}"             Command="{StaticResource Reflush}"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_ForcedReflush}"       Command="{StaticResource ForceReflush}" x:Name="Context_ForcedReflush" Visibility="Collapsed"/>
                     <Separator/>
-                    <MenuItem Header="{x:Static local:Resources.Menu_Paste}"/>
-                    <MenuItem Header="{x:Static local:Resources.Menu_New}">
-                        <MenuItem Header="{x:Static local:Resources.NewDir}"               Command="{StaticResource CreateDir}"/>
-                        <MenuItem Header="{x:Static local:Resources.NewFile}"              Command="{StaticResource CreateFile}"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Paste}"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_New}">
+                        <MenuItem Header="{x:Static prop:Resources.NewDir}"               Command="{StaticResource CreateDir}"/>
+                        <MenuItem Header="{x:Static prop:Resources.NewFile}"              Command="{StaticResource CreateFile}"/>
                     </MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Android_Transfer_Protocol.Configure;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -16,33 +17,37 @@ namespace Android_Transfer_Protocol
     /// </summary>
     public partial class FileManager : Window
     {
-        private ObservableCollection<AFile> FilesListData;
-        private readonly Dictionary<string, AFile> SelectedFiles = new Dictionary<string, AFile>();
+        private Dictionary<string, ColHeaderProp> ColHeaderConf;
+        private Dictionary<string, ToolBarProp> ToolBarConf;
+        private WindowProp FileManagerConf;
+
+        private ObservableCollection<AFile> FileListData;
+        private readonly Dictionary<string, AFile> SelectedFile = new Dictionary<string, AFile>();
         public FileManager()
         {
+            InitConf();
             InitializeComponent();
-            SetTitleNRootStatus();
+            InitWindow();
+            InitStatusConfig();
+            InitFileListHeader();
+            InitToolBar();
+            /* 根据 Root 状态修改 UI */
+            RootStatus();
             /* 绑定任务状态数据源 */
             TaskListBox.ItemsSource = TaskList.Keys;
-            InitStatusConfig();
         }
 
-        private void InitStatusConfig()
+        private void InitConf()
         {
-            Adb.AddStatus = AddStatus;
-            Adb.RmStatus = RmStatus;
-            ForceReflush();
-            DefaultStatus($"{Properties.Resources.Connect} {Properties.Resources.Success}");
-            new DispatcherTimer(
-                TimeSpan.FromSeconds(1),
-                DispatcherPriority.Normal,
-                (sender, e) => SetStatus(),
-                Dispatcher.CurrentDispatcher)
-            .Start();
+            ShowProp show = Configurer.conf.Show;
+            ColHeaderConf = show.ColHeaderConf;
+            ToolBarConf = show.ToolBarConf;
+            if (!show.WindowConf.ContainsKey("FileManager")) show.WindowConf.Add("FileManager", new WindowProp());
+            FileManagerConf = Configurer.conf.Show.WindowConf["FileManager"];
         }
 
         /* 设置标题 */
-        private void SetTitleNRootStatus()
+        private void RootStatus()
         {
             Title = $"{Properties.Resources.ATP} | {Adb.CurrentDevice.Model}";
             if (Adb.CheckRoot(Adb.CurrentDevice))
@@ -80,8 +85,8 @@ namespace Android_Transfer_Protocol
         private void DefaultStatus(string status = null)
         {
             StatusList[0] = string.IsNullOrEmpty(status) ?
-               $"{Properties.Resources.Sum}: {FilesList.Items.Count}, " +
-               $"{Properties.Resources.Selected}: {FilesList.SelectedItems.Count}" :
+               $"{Properties.Resources.Sum}: {FileList.Items.Count}, " +
+               $"{Properties.Resources.Selected}: {FileList.SelectedItems.Count}" :
                status;
             SetStatus(0);
         }
@@ -93,6 +98,20 @@ namespace Android_Transfer_Protocol
         }
 
         private void RmStatus(string status) => StatusList.Remove(status);
+
+        private void InitStatusConfig()
+        {
+            Adb.AddStatus = AddStatus;
+            Adb.RmStatus = RmStatus;
+            ForceReflush();
+            DefaultStatus($"{Properties.Resources.Connect} {Properties.Resources.Success}");
+            new DispatcherTimer(
+                TimeSpan.FromSeconds(1),
+                DispatcherPriority.Normal,
+                (sender, e) => SetStatus(),
+                Dispatcher.CurrentDispatcher)
+            .Start();
+        }
 
         /**<summary>检查连接状态</summary>**/
         private bool Check()
@@ -140,11 +159,11 @@ namespace Android_Transfer_Protocol
 
             Dispatcher.CurrentDispatcher.Invoke(() =>
             {
-                FilesList.ItemsSource = FilesListData;
-                if (SelectedFiles.ContainsKey(Adb.Path)) Go2File(SelectedFiles[Adb.Path]);
+                FileList.ItemsSource = FileListData;
+                if (SelectedFile.ContainsKey(Adb.Path)) Go2File(SelectedFile[Adb.Path]);
             }, DispatcherPriority.ContextIdle);
 
-            FilesList.Focus();
+            FileList.Focus();
             DefaultStatus();
         }
 
@@ -152,17 +171,17 @@ namespace Android_Transfer_Protocol
         private void OpenDir(string path)
         {
             if (path[path.Length - 1] != '/') path += '/';
-            LoadDir(Adb.OpenFilesList(ref FilesListData, path));
+            LoadDir(Adb.OpenFilesList(ref FileListData, path));
         }
 
         /**<summary>刷新</summary>**/
         private void Reflush()
         {
             AddStatus($"{Properties.Resources.Reflushing}");
-            FilesList.Dispatcher.Invoke(() =>
+            FileList.Dispatcher.Invoke(() =>
             {
-                FilesList.CommitEdit();
-                FilesList.CancelEdit();
+                FileList.CommitEdit();
+                FileList.CancelEdit();
                 OpenDir(Adb.Path);
             });
             RmStatus($"{Properties.Resources.Reflushing}");
@@ -172,58 +191,94 @@ namespace Android_Transfer_Protocol
         private void ForceReflush()
         {
             Adb.FlushCache(Adb.Path);
-            FilesList.Dispatcher.Invoke(() => OpenDir(Adb.Path));
+            FileList.Dispatcher.Invoke(() => OpenDir(Adb.Path));
         }
 
         /**<summary>打开选中的文件夹</summary>**/
         private void OpenSelectedDir()
         {
-            if (!SelectedFiles.ContainsKey(Adb.Path)) return;
+            if (!SelectedFile.ContainsKey(Adb.Path)) return;
 
-            if (SelectedFiles[Adb.Path].Type.Equals(AFile.DIR) || SelectedFiles[Adb.Path].Type.Equals(AFile.LINK))
+            if (SelectedFile[Adb.Path].Type.Equals(AFile.DIR) || SelectedFile[Adb.Path].Type.Equals(AFile.LINK))
             {
-                OpenDir($"{Adb.Path}{SelectedFiles[Adb.Path].Name}/");
+                OpenDir($"{Adb.Path}{SelectedFile[Adb.Path].Name}/");
             }
         }
 
         /***** 数据表事件 *****/
 
+        /**<summary>初始化列表头</summary>**/
+        private void InitFileListHeader()
+        {
+            foreach (DataGridColumn col in FileList.Columns)
+            {
+                string header = col.Header.ToString();
+                if (header.Equals(Properties.Resources.FileName)) continue;
+                if (ColHeaderConf.ContainsKey(header))
+                {
+                    DataGridColumnToggle(col, ColHeaderConf[header].Visible);
+                    col.DisplayIndex = ColHeaderConf[header].index;
+                } else DataGridColumnToggle(col);
+            }
+        }
+
+        private void SaveFileListHeader()
+        {
+            foreach (DataGridColumn col in FileList.Columns)
+            {
+                string header = col.Header.ToString();
+                if (ColHeaderConf.ContainsKey(header))
+                {
+                    ColHeaderConf[header].Visible = col.Visibility == Visibility.Visible;
+                    ColHeaderConf[header].index = col.DisplayIndex;
+                }
+                else
+                {
+                    ColHeaderConf.Add(header, new ColHeaderProp
+                    {
+                        index = col.DisplayIndex,
+                        Visible = col.Visibility == Visibility.Visible
+                    });
+                }
+            }
+        }
+
         /**<summary>取消列表选中或结束编辑状态</summary>**/
         private void CancelSelectOrEdit()
         {
-            if (FilesNameCol.IsReadOnly) FilesList.SelectedIndex = -1;
-            FilesList.CancelEdit();
-            FilesNameCol.IsReadOnly = true;
+            if (FileNameCol.IsReadOnly) FileList.SelectedIndex = -1;
+            FileList.CancelEdit();
+            FileNameCol.IsReadOnly = true;
         }
 
         /**<summary>打开选中的文件夹或结束编辑状态</summary>**/
         private void Enter_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if (FilesNameCol.IsReadOnly) OpenSelectedDir();
-            else FilesList.CancelEdit();
+            if (FileNameCol.IsReadOnly) OpenSelectedDir();
+            else FileList.CancelEdit();
         }
 
         /**<summary>编辑上一个文件名</summary>**/
         private void EditLast_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if (FilesList.SelectedIndex <= 0) return;
-            if (!FilesNameCol.IsReadOnly)
+            if (FileList.SelectedIndex <= 0) return;
+            if (!FileNameCol.IsReadOnly)
             {
-                --FilesList.SelectedIndex;
+                --FileList.SelectedIndex;
                 BeginRename();
             }
-            else --FilesList.SelectedIndex;
+            else --FileList.SelectedIndex;
         }
 
         /**<summary>编辑下一个文件名</summary>**/
         private void EditNext_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if (!FilesNameCol.IsReadOnly)
+            if (!FileNameCol.IsReadOnly)
             {
-                ++FilesList.SelectedIndex;
+                ++FileList.SelectedIndex;
                 BeginRename();
             }
-            else ++FilesList.SelectedIndex;
+            else ++FileList.SelectedIndex;
         }
 
         /**<summary>跳转到文件所在位置</summary>**/
@@ -231,11 +286,11 @@ namespace Android_Transfer_Protocol
         {
             if (file == null) return;
             /* 选中文件 */
-            FilesList.SelectedItem = file;
+            FileList.SelectedItem = file;
             /* 对焦单元格 */
-            FilesList.CurrentCell = new DataGridCellInfo(file, FilesNameCol);
+            FileList.CurrentCell = new DataGridCellInfo(file, FileNameCol);
             /* 滚动至目标 */
-            FilesList.ScrollIntoView(file);
+            FileList.ScrollIntoView(file);
         }
 
         /**<summary>刷新</summary>**/
@@ -244,22 +299,22 @@ namespace Android_Transfer_Protocol
         private void ForceReflush_Executed(object sender, ExecutedRoutedEventArgs e) => ForceReflush();
 
         /**<summary>选中内容发生变化</summary>**/
-        private void FilesList_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
+        private void FileList_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
-            if (FilesList.SelectedItem is AFile file)
+            if (FileList.SelectedItem is AFile file)
             {
-                SelectedFiles[Adb.Path] = file;
-                FilesList.CurrentCell = new DataGridCellInfo(file, FilesNameCol);
+                SelectedFile[Adb.Path] = file;
+                FileList.CurrentCell = new DataGridCellInfo(file, FileNameCol);
             }
             DefaultStatus();
         }
 
         /**<summary>鼠标点击数据表</summary>**/
-        private void FilesList_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private void FileList_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            FilesList.Focus();
+            FileList.Focus();
             /* 获取鼠标点击的内容 */
-            IInputElement CilckedControl = FilesList.InputHitTest(e.GetPosition(FilesList));
+            IInputElement CilckedControl = FileList.InputHitTest(e.GetPosition(FileList));
             /* 点击空白处则取消选中状态 */
             if (CilckedControl is ScrollViewer || CilckedControl is Border) CancelSelectOrEdit();
 
@@ -277,9 +332,9 @@ namespace Android_Transfer_Protocol
         {
             if (sender is DataGridCell cell && e.ClickCount == 1)
             {
-                if (cell.Column != FilesNameCol)
+                if (cell.Column != FileNameCol)
                 {
-                    FilesList.CancelEdit();
+                    FileList.CancelEdit();
                     return;
                 }
                 if (SelectedCell == cell) BeginRename();
@@ -293,28 +348,28 @@ namespace Android_Transfer_Protocol
             if (e.ChangedButton.Equals(MouseButton.Left)) OpenSelectedDir();
         }
 
-        /***** 导航事件 ******/
+        /***** 导航事件 *****/
 
         /**<summary>上一级目录</summary>**/
         private void Upper() => OpenDir(Adb.GetUpperDir(Adb.Path));
         private void Upper_Executed(object sender, ExecutedRoutedEventArgs e) => Upper();
 
         /**<summary>后退</summary>**/
-        private void Last() => LoadDir(Adb.LastFileList(ref FilesListData));
+        private void Last() => LoadDir(Adb.LastFileList(ref FileListData));
         private void Last_Executed(object sender, ExecutedRoutedEventArgs e) => Last();
 
         /**<summary>前进</summary>**/
-        private void Next() => LoadDir(Adb.NextFileList(ref FilesListData));
+        private void Next() => LoadDir(Adb.NextFileList(ref FileListData));
         private void Next_Executed(object sender, ExecutedRoutedEventArgs e) => Next();
 
 
-        /***** 地址栏事件 ******/
+        /***** 地址栏事件 *****/
 
         /**<summary>打开地址栏地址</summary>**/
         private void OpenPathDir_Executed(object sender, ExecutedRoutedEventArgs e) => OpenDir(PathBar.Text);
 
         /**<summary>取消对地址栏的编辑</summary>**/
-        private void CancelPath_Executed(object sender, ExecutedRoutedEventArgs e) => FilesList.Focus();
+        private void CancelPath_Executed(object sender, ExecutedRoutedEventArgs e) => FileList.Focus();
         private void PathBar_LostFocus(object sender, RoutedEventArgs e) => PathBar.Text = Adb.Path;
 
         /**<summary>地址栏自动全选</summary>**/
@@ -333,7 +388,7 @@ namespace Android_Transfer_Protocol
         private void FocusPath_Executed(object sender, ExecutedRoutedEventArgs e) => PathBar.Focus();
 
 
-        /***** 编辑事件 ******/
+        /***** 编辑事件 *****/
         private bool IsNewFile = false;
         private AFile EditingFile = null;
         private bool IsMove = false;
@@ -343,12 +398,12 @@ namespace Android_Transfer_Protocol
         private void Preview_Create(string file_name, string type)
         {
             AddStatus(Properties.Resources.Creating);
-            if (!FilesNameCol.IsReadOnly) return;
-            FilesList.Focus();
+            if (!FileNameCol.IsReadOnly) return;
+            FileList.Focus();
             /* 避免文件名冲突, 添加前缀 */
             while (Adb.CheckPath($"{Adb.Path}{file_name}")) file_name = $"{Properties.Resources.New}{file_name}";
             var new_file = new AFile { Name = file_name, Type = type };
-            FilesListData.Add(new_file);
+            FileListData.Add(new_file);
             IsNewFile = true;
             BeginRename(new_file);
         }
@@ -358,11 +413,11 @@ namespace Android_Transfer_Protocol
             /* 不允许空文件或文件名 */
             if (EditingFile == null)
             {
-                FilesListData.Remove(EditingFile);
+                FileListData.Remove(EditingFile);
                 return;
             }
             string error_message = EditingFile.Type.Equals(AFile.FILE) ? Adb.CreateFile(EditingFile.Name) : Adb.CreateDir(EditingFile.Name);
-            if (ShowErrMessage(error_message)) FilesListData.Remove(EditingFile);
+            if (ShowErrMessage(error_message)) FileListData.Remove(EditingFile);
             RmStatus(Properties.Resources.Creating);
         }
 
@@ -397,13 +452,13 @@ namespace Android_Transfer_Protocol
         private void BeginRename(AFile file = null)
         {
             Go2File(file);
-            FilesNameCol.IsReadOnly = false;
-            FilesList.BeginEdit();
+            FileNameCol.IsReadOnly = false;
+            FileList.BeginEdit();
         }
         private void Rename_Executed(object sender, ExecutedRoutedEventArgs e) => BeginRename();
 
         /**<summary>记录重命名前状态</summary>**/
-        private void FilesList_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
+        private void FileList_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
         {
             if (e.Row.Item is AFile file)
             {
@@ -412,12 +467,12 @@ namespace Android_Transfer_Protocol
             }
         }
 
-        private void FilesList_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        private void FileList_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             /* 避免重复提交 */
-            if (FilesNameCol.IsReadOnly) return;
+            if (FileNameCol.IsReadOnly) return;
 
-            FilesNameCol.IsReadOnly = true;
+            FileNameCol.IsReadOnly = true;
             EditingFile.Name = EditingFile.Name.Replace("/", string.Empty);
             if (IsNewFile) CreateEnding();
             else Rename(EditingFile);
@@ -426,7 +481,7 @@ namespace Android_Transfer_Protocol
 
         private void Sent2Clipboard(bool move)
         {
-            if (FilesList.SelectedItems.Cast<AFile>().ToList() is IList<AFile> files)
+            if (FileList.SelectedItems.Cast<AFile>().ToList() is IList<AFile> files)
             {
                 if (files.Count < 1) return;
                 IsMove = move;
@@ -489,7 +544,7 @@ namespace Android_Transfer_Protocol
 
         private void Duplicate_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if (FilesList.SelectedItems.Cast<AFile>().ToList() is IList<AFile> files)
+            if (FileList.SelectedItems.Cast<AFile>().ToList() is IList<AFile> files)
             {
                 if (files.Count < 1) return;
                 Duplicate(files);
@@ -529,7 +584,7 @@ namespace Android_Transfer_Protocol
         /**<summary>删除文件</summary>**/
         private void Delete()
         {
-            if (FilesList.SelectedItems.Cast<AFile>().ToList() is IList<AFile> files)
+            if (FileList.SelectedItems.Cast<AFile>().ToList() is IList<AFile> files)
             {
                 if (files.Count < 1) return;
                 string files_name = Adb.Files2String(files);
@@ -560,7 +615,7 @@ namespace Android_Transfer_Protocol
             }));
         }
 
-        private void FilesList_Drop(object sender, DragEventArgs e)
+        private void FileList_Drop(object sender, DragEventArgs e)
         {
             if (e.Data.GetData(DataFormats.FileDrop) is string[] files) Upload(files);
         }
@@ -578,7 +633,7 @@ namespace Android_Transfer_Protocol
         /**<summary>下载</summary>**/
         private void Download(string path)
         {
-            if (FilesList.SelectedItems.Cast<AFile>().ToList() is IList<AFile> files)
+            if (FileList.SelectedItems.Cast<AFile>().ToList() is IList<AFile> files)
             {
                 string task_name = $"{Properties.Resources.Downloading} {string.Join(", ", files.Select(file => file.Name))}";
                 if (TaskList.ContainsKey(task_name)) return;
@@ -605,7 +660,7 @@ namespace Android_Transfer_Protocol
         {
             if (Change())
             {
-                SetTitleNRootStatus();
+                RootStatus();
                 Reflush();
             }
             else MessageBox.Show(Properties.Resources.Message_OperationFailed,
@@ -618,14 +673,132 @@ namespace Android_Transfer_Protocol
 
         private void Unroot_Executed(object sender, ExecutedRoutedEventArgs e) => RootChange(Adb.UnRoot);
 
-        /*** 停 ***/
+        /***** 菜单 *****/
+
+        /**<summary>全选</summary>**/
+        private void SelectAll(object sender, RoutedEventArgs e) => FileList.SelectAll();
+
+        /**<summary>取消选中</summary>**/
+        private void CancelSelected(object sender, RoutedEventArgs e) => FileList.SelectedIndex = -1;
+
+
+        /**<summary>断开连接</summary>**/
+        private void Disconnect_Click(object sender, RoutedEventArgs e) => Close();
+
+        /***** 显示 *****/
+        private void Menu_Browse_Opened(object sender, RoutedEventArgs e)
+        {
+            Menu_ForcedReflush.Visibility = Context_ForcedReflush.Visibility =
+                Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) ?
+                Visibility.Visible :
+                Visibility.Collapsed;
+        }
+
+        /**<summary>切换文件属性显示状态</summary>**/
+        private bool DataGridColumnToggle(DataGridColumn col, bool? sw = null)
+        {
+            if (col == null) return false;
+            if (sw != null) col.Visibility = (bool)sw ? Visibility.Visible : Visibility.Collapsed;
+            else col.Visibility = col.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+            bool status = col.Visibility == Visibility.Visible;
+            (Resources["HeaderContextMenu"] as ContextMenu).Items.Cast<MenuItem>().First(menu => menu.Header == col.Header).IsChecked = status;
+            return status;
+        }
+
+        private void HeaderToggle(object sender, RoutedEventArgs e)
+        {
+            DataGridColumn col = FileList.Columns.First(col => col.Header == (sender as MenuItem).Header);
+            DataGridColumnToggle(col);
+        }
+
+        /**<summary>切换工具栏显示状态</summary>**/
+        private bool ToolBarToogle(ToolBar obj, bool? sw = null)
+        {
+            if (obj == null) return false;
+            if (sw != null) obj.Visibility = (bool)sw ? Visibility.Visible : Visibility.Collapsed;
+            else obj.Visibility = obj.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+            bool status = obj.Visibility == Visibility.Visible;
+            ToolbarMenu.Items.Cast<MenuItem>().First(menu => menu.Name == obj.Name + "Menu").IsChecked = status;
+            return obj.Visibility == Visibility.Visible;
+        }
+
+        /*** 工具栏显示 ***/
+
+        private void InitToolBar()
+        {
+            if (ToolBarConf.ContainsKey("Browse"))
+            {
+                BrowseTools.Band = ToolBarConf["Browse"].Band;
+                BrowseTools.BandIndex = ToolBarConf["Browse"].BandIndex;
+                ToolBarToogle(BrowseTools, ToolBarConf["Browse"].Visible);
+            }
+
+            if (ToolBarConf.ContainsKey("Edit"))
+            {
+                EditTools.Band = ToolBarConf["Edit"].Band;
+                EditTools.BandIndex = ToolBarConf["Edit"].BandIndex;
+                ToolBarToogle(EditTools, ToolBarConf["Edit"].Visible);
+            }
+
+            if (ToolBarConf.ContainsKey("Transmission"))
+            {
+                TransmissionTools.Band = ToolBarConf["Transmission"].Band;
+                TransmissionTools.BandIndex = ToolBarConf["Transmission"].BandIndex;
+                ToolBarToogle(TransmissionTools, ToolBarConf["Transmission"].Visible);
+            }
+        }
+
+        private void SaveToolBar()
+        {
+            if (!ToolBarConf.ContainsKey("Browse")) ToolBarConf.Add("Browse", new ToolBarProp());
+            ToolBarConf["Browse"].Visible = BrowseTools.Visibility == Visibility.Visible;
+            ToolBarConf["Browse"].Band = BrowseTools.Band;
+            ToolBarConf["Browse"].BandIndex = BrowseTools.BandIndex;
+
+            if (!ToolBarConf.ContainsKey("Edit")) ToolBarConf.Add("Edit", new ToolBarProp());
+            ToolBarConf["Edit"].Visible = EditTools.Visibility == Visibility.Visible;
+            ToolBarConf["Edit"].Band = EditTools.Band;
+            ToolBarConf["Edit"].BandIndex = EditTools.BandIndex;
+
+            if (!ToolBarConf.ContainsKey("Transmission")) ToolBarConf.Add("Transmission", new ToolBarProp());
+            ToolBarConf["Transmission"].Visible = TransmissionTools.Visibility == Visibility.Visible;
+            ToolBarConf["Transmission"].Band = TransmissionTools.Band;
+            ToolBarConf["Transmission"].BandIndex = TransmissionTools.BandIndex;
+        }
+
+        /* 箭头图片资源 */
+        private readonly BitmapImage foldImg = new BitmapImage(new Uri("pack://application:,,,/Android Transfer Protocol;component/fold.png"));
+        private readonly BitmapImage unfoldImg = new BitmapImage(new Uri("pack://application:,,,/Android Transfer Protocol;component/unfold.png"));
+        private void TaskListToggle(object sender, RoutedEventArgs e)
+        {
+            bool status = TaskListBox.Visibility != Visibility.Visible;
+            TaskListBox.Visibility = status ? Visibility.Visible : Visibility.Collapsed;
+            UnfoldImg.Source = status ? foldImg : unfoldImg;
+        }
+        private void BrowseToolsToggle(object sender, RoutedEventArgs e) => ToolBarToogle(BrowseTools);
+        private void TransmissionToolsToggle(object sender, RoutedEventArgs e) => ToolBarToogle(TransmissionTools);
+        private void EditToolsToggle(object sender, RoutedEventArgs e) => ToolBarToogle(EditTools);
+
+        /***** 窗口 *****/
+        private void InitWindow()
+        {
+            Width = FileManagerConf.Width;
+            Height = FileManagerConf.Height;
+        }
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            FileManagerConf.Width = Width;
+            FileManagerConf.Height = Height;
+        }
+
+        /***** 停 *****/
         private void Stop(string task_name = null) => Adb.Stop(task_name);
 
         private void TaskListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => Stop((sender as ListBox).SelectedItem.ToString());
 
         private void Esc_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if (!FilesNameCol.IsReadOnly && SelectedFiles.ContainsKey(Adb.Path)) SelectedFiles[Adb.Path].Name = NewName = OldName;
+            if (!FileNameCol.IsReadOnly && SelectedFile.ContainsKey(Adb.Path)) SelectedFile[Adb.Path].Name = NewName = OldName;
             CancelSelectOrEdit();
         }
 
@@ -655,86 +828,10 @@ namespace Android_Transfer_Protocol
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            SaveFileListHeader();
+            SaveToolBar();
             if (!ClosingRequest()) e.Cancel = true;
             else new DeviceChoose().Show();
-        }
-
-        /***** 菜单 *****/
-
-        /**<summary>全选</summary>**/
-        private void SelectAll(object sender, RoutedEventArgs e) => FilesList.SelectAll();
-
-        /**<summary>取消选中</summary>**/
-        private void CancelSelected(object sender, RoutedEventArgs e) => FilesList.SelectedIndex = -1;
-
-        private void Menu_Browse_Opened(object sender, RoutedEventArgs e)
-        {
-            Menu_ForcedReflush.Visibility = Context_ForcedReflush.Visibility =
-                Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) ?
-                Visibility.Visible :
-                Visibility.Collapsed;
-        }
-
-        /**<summary>断开连接</summary>**/
-        private void Disconnect_Click(object sender, RoutedEventArgs e) => Close();
-
-        private void BrowseToolsToggle(object sender, RoutedEventArgs e)
-        {
-            if (BrowseTools.Visibility == Visibility.Visible)
-            {
-                BrowseTools.Visibility = Visibility.Collapsed;
-                BrowseToolsMenu.IsChecked = false;
-            }
-            else
-            {
-                BrowseTools.Visibility = Visibility.Visible;
-                BrowseToolsMenu.IsChecked = true;
-            }
-        }
-        private void TransmissionToolsToggle(object sender, RoutedEventArgs e)
-        {
-            if (TransmissionTools.Visibility == Visibility.Visible)
-            {
-                TransmissionTools.Visibility = Visibility.Collapsed;
-                TransmissionToolsMenu.IsChecked = false;
-            }
-            else
-            {
-                TransmissionTools.Visibility = Visibility.Visible;
-                TransmissionToolsMenu.IsChecked = true;
-            }
-        }
-
-        private void EditToolsToggle(object sender, RoutedEventArgs e)
-        {
-            if (EditTools.Visibility == Visibility.Visible)
-            {
-                EditTools.Visibility = Visibility.Collapsed;
-                EditToolsMenu.IsChecked = false;
-            }
-            else
-            {
-                EditTools.Visibility = Visibility.Visible;
-                EditToolsMenu.IsChecked = true;
-            }
-        }
-
-        private readonly BitmapImage foldImg = new BitmapImage(new Uri("pack://application:,,,/Android Transfer Protocol;component/fold.png"));
-        private readonly BitmapImage unfoldImg = new BitmapImage(new Uri("pack://application:,,,/Android Transfer Protocol;component/unfold.png"));
-        private void TaskListToggle(object sender, RoutedEventArgs e)
-        {
-            if (TaskListBox.Visibility == Visibility.Visible)
-            {
-                UnfoldImg.Source = unfoldImg;
-                TaskListBox.Visibility = Visibility.Collapsed;
-                TaskListMenu.IsChecked = false;
-            }
-            else
-            {
-                UnfoldImg.Source = foldImg;
-                TaskListBox.Visibility = Visibility.Visible;
-                TaskListMenu.IsChecked = true;
-            }
         }
     }
 }
