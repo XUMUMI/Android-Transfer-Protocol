@@ -32,6 +32,7 @@
         <RoutedCommand x:Key="Root"/>
         <RoutedCommand x:Key="Stop"/>
         <RoutedCommand x:Key="Unroot"/>
+        <RoutedCommand x:Key="Upload"/>
         <RoutedCommand x:Key="Upper"/>
         
         <ContextMenu x:Key="HeaderContextMenu">
@@ -75,6 +76,7 @@
         <CommandBinding Command="{StaticResource Root}"          Executed="Root_Executed"/>
         <CommandBinding Command="{StaticResource Stop}"          Executed="Stop_Executed"/>
         <CommandBinding Command="{StaticResource Unroot}"        Executed="Unroot_Executed"/>
+        <CommandBinding Command="{StaticResource Upload}"        Executed="Upload_Executed"/>
         <CommandBinding Command="{StaticResource Upper}"         Executed="Upper_Executed"/>
     </Window.CommandBindings>
     <Window.InputBindings>
@@ -128,13 +130,13 @@
                         </MenuItem>
                         <MenuItem Header="{x:Static prop:Resources.Menu_TaskList}"          Click="TaskListToggle"          Name="TaskListBoxMenu"/>
                     </MenuItem>
-                    <MenuItem     Header="{x:Static prop:Resources.Menu_Help}">
+                    <MenuItem     Header="{x:Static prop:Resources.Menu_Help}" Visibility="Collapsed">
                         <MenuItem Header="{x:Static prop:Resources.Menu_About}"/>
                         <MenuItem Header="{x:Static prop:Resources.Menu_CheckUpdate}"/>
                         <MenuItem Header="{x:Static prop:Resources.Menu_HowToUse}"/>
                     </MenuItem>
                 </Menu>
-                <ToolBarTray Orientation="Horizontal" SnapsToDevicePixels="True">
+                <ToolBarTray Orientation="Horizontal" SnapsToDevicePixels="True" x:Name="ToolBarDock">
                     <ToolBarTray.Resources>
                         <Style x:Key="ToolBarButtonStyle" TargetType="Button">
                             <Setter Property="Background" Value="{x:Null}"/>
@@ -173,10 +175,10 @@
                     </ToolBar>
                     <ToolBar Background="{x:Null}" Name="TransmissionTools" Visibility="Collapsed">
                         <ToolBarPanel Orientation="Horizontal" ToolBar.OverflowMode="Never">
-                            <Button x:Name="UploadButton" Command="{StaticResource Rename}"     Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static prop:Resources.Upload}">
+                            <Button x:Name="UploadButton" Command="{StaticResource Upload}"     Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static prop:Resources.Upload}">
                                 <Image Source="upload.png" Style="{DynamicResource ToolBarButtonImage}"/>
                             </Button>
-                            <Button x:Name="DownloadButton" Command="{StaticResource Delete}"   Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static prop:Resources.Download}">
+                            <Button x:Name="DownloadButton" Command="{StaticResource Download}"   Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static prop:Resources.Download}">
                                 <Image Source="download.png" Style="{DynamicResource ToolBarButtonImage}"/>
                             </Button>
                         </ToolBarPanel>
@@ -331,19 +333,19 @@
                 </Style>
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="{x:Static prop:Resources.FileName}"  IsReadOnly="True" Binding="{Binding Name}"      x:Name="FileNameCol"/>
-                <DataGridTextColumn Header="{x:Static prop:Resources.Type}"      IsReadOnly="True" Binding="{Binding Type}"      x:Name="FileTypeCol"/>
-                <DataGridTextColumn Header="{x:Static prop:Resources.DeviceNum}" IsReadOnly="True" Binding="{Binding DeviceNum}" x:Name="FileDeviceNumCol"/>
-                <DataGridTextColumn Header="{x:Static prop:Resources.Link}"      IsReadOnly="True" Binding="{Binding Link}"      x:Name="FileLinkCol"/>
-                <DataGridTextColumn Header="{x:Static prop:Resources.Pression}"  IsReadOnly="True" Binding="{Binding Pression}"  x:Name="FilePressionCol"/>
-                <DataGridTextColumn Header="{x:Static prop:Resources.User}"      IsReadOnly="True" Binding="{Binding User}"      x:Name="FileUserCol"/>
-                <DataGridTextColumn Header="{x:Static prop:Resources.Group}"     IsReadOnly="True" Binding="{Binding Group}"     x:Name="FileGroupCol"/>
-                <DataGridTextColumn Header="{x:Static prop:Resources.Size}"      IsReadOnly="True" Binding="{Binding Size}"      x:Name="FileSizeCol"/>
-                <DataGridTextColumn Header="{x:Static prop:Resources.Time}"      IsReadOnly="True" Binding="{Binding DateTime}"  x:Name="FileDateTimeCol"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.FileName}"  IsReadOnly="True" Binding="{Binding Name}" x:Name="FileNameCol"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.Type}"      IsReadOnly="True" Binding="{Binding Type}"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.DeviceNum}" IsReadOnly="True" Binding="{Binding DeviceNum}"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.Link}"      IsReadOnly="True" Binding="{Binding Link}"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.Pression}"  IsReadOnly="True" Binding="{Binding Pression}"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.User}"      IsReadOnly="True" Binding="{Binding User}"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.Group}"     IsReadOnly="True" Binding="{Binding Group}"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.Size}"      IsReadOnly="True" Binding="{Binding Size}"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.Time}"      IsReadOnly="True" Binding="{Binding DateTime}"/>
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu Opened="Menu_Browse_Opened">
-                    <MenuItem Header="{x:Static prop:Resources.Menu_Upload}"              Click="Upload_Click"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Upload}"              Command="{StaticResource Upload}"/>
                     <Separator/>
                     <MenuItem Header="{x:Static prop:Resources.Menu_Elevation}"           Command="{StaticResource Root}"         x:Name="Context_Elevation"/>
                     <MenuItem Header="{x:Static prop:Resources.Menu_Deauthorization}"     Command="{StaticResource Unroot}"       x:Name="Context_Deauthorization"/>

@@ -137,7 +137,12 @@ namespace Android_Transfer_Protocol
                 Exec($"-s {CurrentDevice.UsbSerialNum} {ROOT}");
                 Exec($"-s {CurrentDevice.UsbSerialNum} {REMOUNT}");
                 is_rooted = CheckRoot(CurrentDevice);
-                if (is_rooted) ChangeDevice(CurrentDevice);
+                if (is_rooted)
+                {
+                    string path = Path;
+                    ChangeDevice(CurrentDevice);
+                    Path = path;
+                }
             }
             return is_rooted;
         }
@@ -150,7 +155,12 @@ namespace Android_Transfer_Protocol
             {
                 Exec($"-s {CurrentDevice.UsbSerialNum} {UNROOT}");
                 is_rooted = CheckRoot(CurrentDevice);
-                if (!is_rooted) ChangeDevice(CurrentDevice);
+                if (!is_rooted)
+                {
+                    string path = Path;
+                    ChangeDevice(CurrentDevice);
+                    Path = path;
+                }
             }
             return !is_rooted;
         }
@@ -205,7 +215,8 @@ namespace Android_Transfer_Protocol
             {
                 if (StopFlag.Equals(task_name) || StopFlag.Equals(ALL)) break;
                 if (File.Exists($"{local_path}{file.Name}") && !cover(file.Name)) continue;
-                ret += Pull(local_path, remote_path, file.Name, task_name)[RESULT];
+                string error_message = Pull(local_path, remote_path, file.Name, task_name)[RESULT];
+                ret += $"{error_message.Substring(error_message.IndexOf(":") + 2)}\n";
             }
             return ret;
         }

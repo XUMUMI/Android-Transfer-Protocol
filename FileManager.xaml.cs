@@ -25,8 +25,8 @@ namespace Android_Transfer_Protocol
         private readonly Dictionary<string, AFile> SelectedFile = new Dictionary<string, AFile>();
         public FileManager()
         {
-            InitConf();
             InitializeComponent();
+            InitConf();
             InitWindow();
             InitStatusConfig();
             InitFileListHeader();
@@ -213,13 +213,13 @@ namespace Android_Transfer_Protocol
             foreach (DataGridColumn col in FileList.Columns)
             {
                 string header = col.Header.ToString();
-                if (header.Equals(Properties.Resources.FileName)) continue;
                 if (ColHeaderConf.ContainsKey(header))
                 {
                     DataGridColumnToggle(col, ColHeaderConf[header].Visible);
                     col.DisplayIndex = ColHeaderConf[header].index;
                 } else DataGridColumnToggle(col);
             }
+            DataGridColumnToggle(FileNameCol, true);
         }
 
         private void SaveFileListHeader()
@@ -620,7 +620,7 @@ namespace Android_Transfer_Protocol
             if (e.Data.GetData(DataFormats.FileDrop) is string[] files) Upload(files);
         }
 
-        private void Upload_Click(object sender, RoutedEventArgs e)
+        private void Upload_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             var files = new System.Windows.Forms.OpenFileDialog
             {
@@ -647,6 +647,7 @@ namespace Android_Transfer_Protocol
 
         private void Download_Executed(object sender, ExecutedRoutedEventArgs e)
         {
+            if (FileList.SelectedIndex < 0) return;
             var path = new System.Windows.Forms.FolderBrowserDialog
             {
                 ShowNewFolderButton = true,
@@ -726,44 +727,26 @@ namespace Android_Transfer_Protocol
 
         private void InitToolBar()
         {
-            if (ToolBarConf.ContainsKey("Browse"))
+            foreach(ToolBar tool in ToolBarDock.ToolBars)
             {
-                BrowseTools.Band = ToolBarConf["Browse"].Band;
-                BrowseTools.BandIndex = ToolBarConf["Browse"].BandIndex;
-                ToolBarToogle(BrowseTools, ToolBarConf["Browse"].Visible);
-            }
-
-            if (ToolBarConf.ContainsKey("Edit"))
-            {
-                EditTools.Band = ToolBarConf["Edit"].Band;
-                EditTools.BandIndex = ToolBarConf["Edit"].BandIndex;
-                ToolBarToogle(EditTools, ToolBarConf["Edit"].Visible);
-            }
-
-            if (ToolBarConf.ContainsKey("Transmission"))
-            {
-                TransmissionTools.Band = ToolBarConf["Transmission"].Band;
-                TransmissionTools.BandIndex = ToolBarConf["Transmission"].BandIndex;
-                ToolBarToogle(TransmissionTools, ToolBarConf["Transmission"].Visible);
+                if (ToolBarConf.ContainsKey(tool.Name))
+                {
+                    tool.Band = ToolBarConf[tool.Name].Band;
+                    tool.BandIndex = ToolBarConf[tool.Name].BandIndex;
+                    ToolBarToogle(tool, ToolBarConf[tool.Name].Visible);
+                }
             }
         }
 
         private void SaveToolBar()
         {
-            if (!ToolBarConf.ContainsKey("Browse")) ToolBarConf.Add("Browse", new ToolBarProp());
-            ToolBarConf["Browse"].Visible = BrowseTools.Visibility == Visibility.Visible;
-            ToolBarConf["Browse"].Band = BrowseTools.Band;
-            ToolBarConf["Browse"].BandIndex = BrowseTools.BandIndex;
-
-            if (!ToolBarConf.ContainsKey("Edit")) ToolBarConf.Add("Edit", new ToolBarProp());
-            ToolBarConf["Edit"].Visible = EditTools.Visibility == Visibility.Visible;
-            ToolBarConf["Edit"].Band = EditTools.Band;
-            ToolBarConf["Edit"].BandIndex = EditTools.BandIndex;
-
-            if (!ToolBarConf.ContainsKey("Transmission")) ToolBarConf.Add("Transmission", new ToolBarProp());
-            ToolBarConf["Transmission"].Visible = TransmissionTools.Visibility == Visibility.Visible;
-            ToolBarConf["Transmission"].Band = TransmissionTools.Band;
-            ToolBarConf["Transmission"].BandIndex = TransmissionTools.BandIndex;
+            foreach (ToolBar tool in ToolBarDock.ToolBars)
+            {
+                if (!ToolBarConf.ContainsKey(tool.Name)) ToolBarConf.Add(tool.Name, new ToolBarProp());
+                ToolBarConf[tool.Name].Visible = tool.Visibility == Visibility.Visible;
+                ToolBarConf[tool.Name].Band = tool.Band;
+                ToolBarConf[tool.Name].BandIndex = tool.BandIndex;
+            }
         }
 
         /* 箭头图片资源 */
