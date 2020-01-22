@@ -184,7 +184,7 @@ namespace Android_Transfer_Protocol
                 if (StopFlag.Equals(task_name) || StopFlag.Equals(ALL)) break;
                 string file_name = GetLoaclFileName(local_path);
                 if (CheckPath($"{remote_path}{file_name}") && !cover(file_name)) continue;
-                ret += Push(remote_path + file_name, local_path, task_name)[RESULT];
+                ret += Push(remote_path + file_name, local_path, task_name)[ERROR];
             }
             FlushCache(remote_path);
             return ret;

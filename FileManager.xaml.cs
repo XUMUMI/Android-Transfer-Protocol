@@ -205,7 +205,7 @@ namespace Android_Transfer_Protocol
             }
         }
 
-        /***** 数据表事件 *****/
+        #region 数据表事件
 
         /**<summary>初始化列表头</summary>**/
         private void InitFileListHeader()
@@ -350,9 +350,9 @@ namespace Android_Transfer_Protocol
         {
             if (e.ChangedButton.Equals(MouseButton.Left)) OpenSelectedDir();
         }
+        #endregion
 
-        /***** 导航事件 *****/
-
+        #region 导航事件
         /**<summary>上一级目录</summary>**/
         private void Upper() => OpenDir(Adb.GetUpperDir(Adb.Path));
         private void Upper_Executed(object sender, ExecutedRoutedEventArgs e) => Upper();
@@ -364,10 +364,9 @@ namespace Android_Transfer_Protocol
         /**<summary>前进</summary>**/
         private void Next() => LoadDir(Adb.NextFileList(ref FileListData));
         private void Next_Executed(object sender, ExecutedRoutedEventArgs e) => Next();
+        #endregion
 
-
-        /***** 地址栏事件 *****/
-
+        #region 地址栏事件
         /**<summary>打开地址栏地址</summary>**/
         private void OpenPathDir_Executed(object sender, ExecutedRoutedEventArgs e) => OpenDir(PathBar.Text);
 
@@ -389,9 +388,9 @@ namespace Android_Transfer_Protocol
 
         /**<summary>对焦到地址栏</summary>**/
         private void FocusPath_Executed(object sender, ExecutedRoutedEventArgs e) => PathBar.Focus();
+        #endregion
 
-
-        /***** 编辑事件 *****/
+        #region 编辑事件
         private bool IsNewFile = false;
         private AFile EditingFile = null;
         private bool IsMove = false;
@@ -400,8 +399,8 @@ namespace Android_Transfer_Protocol
         /**<summary>新建</summary>**/
         private void Preview_Create(string file_name, string type)
         {
-            AddStatus(Properties.Resources.Creating);
             if (!FileNameCol.IsReadOnly) return;
+            AddStatus(Properties.Resources.Creating);
             FileList.Focus();
             /* 避免文件名冲突, 添加前缀 */
             while (Adb.CheckPath($"{Adb.Path}{file_name}")) file_name = $"{Properties.Resources.New}{file_name}";
@@ -571,7 +570,6 @@ namespace Android_Transfer_Protocol
             }
         }
 
-        /*** 删除  ***/
         private bool DeleteTip(string files_name)
         {
             files_name = files_name.Remove(0, files_name.IndexOf('\n'));
@@ -659,8 +657,9 @@ namespace Android_Transfer_Protocol
             };
             if (path.ShowDialog() == System.Windows.Forms.DialogResult.OK) Download($"{path.SelectedPath}\\");
         }
+        #endregion
 
-        /*** 权限 ***/
+        #region 权限
         private void RootChange(Func<bool> Change)
         {
             if (Change())
@@ -677,9 +676,9 @@ namespace Android_Transfer_Protocol
         private void Root_Executed(object sender, ExecutedRoutedEventArgs e) => RootChange(Adb.Root);
 
         private void Unroot_Executed(object sender, ExecutedRoutedEventArgs e) => RootChange(Adb.UnRoot);
+        #endregion
 
-        /***** 菜单 *****/
-
+        #region 菜单
         /**<summary>全选</summary>**/
         private void SelectAll(object sender, RoutedEventArgs e) => FileList.SelectAll();
 
@@ -689,8 +688,9 @@ namespace Android_Transfer_Protocol
 
         /**<summary>断开连接</summary>**/
         private void Disconnect_Click(object sender, RoutedEventArgs e) => Close();
+        #endregion
 
-        /***** 显示 *****/
+        #region 显示
         private void Menu_Browse_Opened(object sender, RoutedEventArgs e)
         {
             Menu_ForcedReflush.Visibility = Context_ForcedReflush.Visibility =
@@ -729,8 +729,9 @@ namespace Android_Transfer_Protocol
             ToolbarMenu.Items.Cast<MenuItem>().First(menu => menu.Name == obj.Name + "Menu").IsChecked = status;
             return obj.Visibility == Visibility.Visible;
         }
+        #endregion
 
-        /*** 工具栏显示 ***/
+        #region 工具栏
 
         private void InitToolBar()
         {
@@ -769,7 +770,9 @@ namespace Android_Transfer_Protocol
         private void TransmissionToolsToggle(object sender, RoutedEventArgs e) => ToolBarToogle(TransmissionTools);
         private void EditToolsToggle(object sender, RoutedEventArgs e) => ToolBarToogle(EditTools);
 
-        /***** 窗口 *****/
+        #endregion  
+
+        #region 窗口
         private void InitWindow()
         {
             Width = FileManagerConf.Width;
@@ -781,7 +784,9 @@ namespace Android_Transfer_Protocol
             FileManagerConf.Height = Height;
         }
 
-        /***** 停 *****/
+        #endregion
+
+        #region 停
         private void Stop(string task_name = null) => Adb.Stop(task_name);
 
         private void TaskListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => Stop((sender as ListBox).SelectedItem.ToString());
@@ -816,6 +821,8 @@ namespace Android_Transfer_Protocol
             return ret;
         }
 
+        private void Menu_About_Click(object sender, RoutedEventArgs e) => new About().ShowDialog();
+
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             SaveFileListHeader();
@@ -824,5 +831,6 @@ namespace Android_Transfer_Protocol
             if (!ClosingRequest()) e.Cancel = true;
             else new DeviceChoose().Show();
         }
+        #endregion
     }
 }

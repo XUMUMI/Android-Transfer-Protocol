@@ -187,5 +187,7 @@ namespace Android_Transfer_Protocol
                 Visibility.Visible :
                 Visibility.Collapsed;
         }
+
+        private void Menu_About_Click(object sender, RoutedEventArgs e) => new About().ShowDialog();
     }
 }

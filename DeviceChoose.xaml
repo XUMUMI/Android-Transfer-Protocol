@@ -42,10 +42,10 @@
                 <Separator/>
                 <MenuItem Header="{x:Static local:Resources.Menu_Exit}"          InputGestureText="Ctrl + F4" Click="Exit_Click"/>
             </MenuItem>
-            <MenuItem Header="{x:Static local:Resources.Menu_Help}" Visibility="Collapsed">
-                <MenuItem Header="{x:Static local:Resources.Menu_About}"/>
-                <MenuItem Header="{x:Static local:Resources.Menu_CheckUpdate}"/>
-                <MenuItem Header="{x:Static local:Resources.Menu_HowToUse}"/>
+            <MenuItem Header="{x:Static local:Resources.Menu_Help}">
+                <MenuItem Header="{x:Static local:Resources.Menu_About}" Click="Menu_About_Click"/>
+                <MenuItem Header="{x:Static local:Resources.Menu_CheckUpdate}" Visibility="Collapsed"/>
+                <MenuItem Header="{x:Static local:Resources.Menu_HowToUse}" Visibility="Collapsed"/>
             </MenuItem>
         </Menu>
 

@@ -61,6 +61,15 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
+        ///   查找类似 关于 的本地化字符串。
+        /// </summary>
+        public static string About {
+            get {
+                return ResourceManager.GetString("About", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 ADB 丢失 的本地化字符串。
         /// </summary>
         public static string AdbLose {
@@ -84,6 +93,15 @@ namespace Android_Transfer_Protocol.Properties {
         public static string ATP {
             get {
                 return ResourceManager.GetString("ATP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 作者 的本地化字符串。
+        /// </summary>
+        public static string Author {
+            get {
+                return ResourceManager.GetString("Author", resourceCulture);
             }
         }
         
@@ -583,6 +601,15 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
+        ///   查找类似 详细信息(_D) 的本地化字符串。
+        /// </summary>
+        public static string Menu_Details {
+            get {
+                return ResourceManager.GetString("Menu_Details", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 设备(_D) 的本地化字符串。
         /// </summary>
         public static string Menu_Device {
@@ -651,6 +678,15 @@ namespace Android_Transfer_Protocol.Properties {
         public static string Menu_Exit {
             get {
                 return ResourceManager.GetString("Menu_Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 文件(_F) 的本地化字符串。
+        /// </summary>
+        public static string Menu_File {
+            get {
+                return ResourceManager.GetString("Menu_File", resourceCulture);
             }
         }
         
@@ -745,7 +781,7 @@ namespace Android_Transfer_Protocol.Properties {
         }
         
         /// <summary>
-        ///   查找类似 任务列表(_T) 的本地化字符串。
+        ///   查找类似 任务列表(_L) 的本地化字符串。
         /// </summary>
         public static string Menu_TaskList {
             get {
@@ -1254,6 +1290,15 @@ namespace Android_Transfer_Protocol.Properties {
         public static string User {
             get {
                 return ResourceManager.GetString("User", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 版本 的本地化字符串。
+        /// </summary>
+        public static string Version {
+            get {
+                return ResourceManager.GetString("Version", resourceCulture);
             }
         }
         

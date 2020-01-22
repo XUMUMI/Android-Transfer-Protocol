@@ -37,6 +37,9 @@
         <RoutedCommand x:Key="Unroot"/>
         <RoutedCommand x:Key="Upload"/>
         <RoutedCommand x:Key="Upper"/>
+
+        <ImageSource x:Key="ReflushImg">Reflush.png</ImageSource>
+
         <collections:ArrayList x:Key="HeaderMenuItems" x:Shared="false">
             <MenuItem Header="{x:Static prop:Resources.FileName}"  IsCheckable="True" IsEnabled="False" IsChecked="True"/>
             <MenuItem Header="{x:Static prop:Resources.Type}"      IsCheckable="True"/>
@@ -101,27 +104,75 @@
                         <Separator/>
                         <MenuItem Header="{x:Static prop:Resources.Menu_Disconnect}"     InputGestureText="Alt + F4"         Click="Disconnect_Click"/>
                     </MenuItem>
-                    <MenuItem     Header="{x:Static prop:Resources.Menu_Browse}"         SubmenuOpened="Menu_Browse_Opened">
-                        <MenuItem Header="{x:Static prop:Resources.Menu_Open}"           InputGestureText="Enter"            Command="{StaticResource Enter}"/>
-                        <Separator/>
-                        <MenuItem Header="{x:Static prop:Resources.Menu_Reflush}"        InputGestureText="F5"               Command="{StaticResource Reflush}"/>
-                        <MenuItem Header="{x:Static prop:Resources.Menu_ForcedReflush}"  InputGestureText="Ctrl + F5"        Command="{StaticResource ForceReflush}" x:Name="Menu_ForcedReflush" Visibility="Collapsed"/>
-                        <Separator/>
-                        <MenuItem Header="{x:Static prop:Resources.Menu_Back}"           InputGestureText="Alt + ←"         Command="{StaticResource Last}"/>
-                        <MenuItem Header="{x:Static prop:Resources.Menu_Forward}"        InputGestureText="Alt + →"         Command="{StaticResource Next}"/>
-                        <MenuItem Header="{x:Static prop:Resources.Menu_Upper}"          InputGestureText="Alt + ↑"         Command="{StaticResource Upper}"/>
-                    </MenuItem>
-                    <MenuItem     Header="{x:Static prop:Resources.Menu_Edit}">
-                        <MenuItem Header="{x:Static prop:Resources.Menu_Cut}"            InputGestureText="Ctrl + X"         Command="{StaticResource Cut}"/>
-                        <MenuItem Header="{x:Static prop:Resources.Menu_Copy}"           InputGestureText="Ctrl + C"         Command="{StaticResource Copy}"/>
-                        <MenuItem Header="{x:Static prop:Resources.Menu_Duplicate}"      InputGestureText="Ctrl + D"         Command="{StaticResource Duplicate}"/>
-                        <MenuItem Header="{x:Static prop:Resources.Menu_Paste}"          InputGestureText="Ctrl + V"         Command="{StaticResource Paste}"/>
-                        <Separator/>
-                        <MenuItem Header="{x:Static prop:Resources.Menu_Rename}"         InputGestureText="F2"               Command="{StaticResource Rename}"/>
-                        <MenuItem Header="{x:Static prop:Resources.Menu_Delete}"         InputGestureText="Delete"           Command="{StaticResource Delete}"/>
+                    <MenuItem     Header="{x:Static prop:Resources.Menu_File}">
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Upload}"                                             Command="{StaticResource Upload}">
+                            <MenuItem.Icon>
+                                <Image Source="upload.png"></Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Download}"                                           Command="{StaticResource Download}">
+                            <MenuItem.Icon>
+                                <Image Source="download.png"></Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
                         <Separator/>
                         <MenuItem Header="{x:Static prop:Resources.NewFile}"             InputGestureText="Ctrl + N"         Command="{StaticResource CreateFile}"/>
                         <MenuItem Header="{x:Static prop:Resources.NewDir}"              InputGestureText="Ctrl + Shift + N" Command="{StaticResource CreateDir}"/>
+                    </MenuItem>          
+                    <MenuItem     Header="{x:Static prop:Resources.Menu_Browse}"         SubmenuOpened="Menu_Browse_Opened">
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Open}"           InputGestureText="Enter"            Command="{StaticResource Enter}"/>
+                        <Separator/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Reflush}"        InputGestureText="F5"               Command="{StaticResource Reflush}">
+                            <MenuItem.Icon>
+                                <Image Source="reflush.png"></Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_ForcedReflush}"  InputGestureText="Ctrl + F5"        Command="{StaticResource ForceReflush}" x:Name="Menu_ForcedReflush" Visibility="Collapsed"/>
+                        <Separator/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Back}"           InputGestureText="Alt + ←"         Command="{StaticResource Last}">
+                            <MenuItem.Icon>
+                                <Image Source="back.png"></Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Forward}"        InputGestureText="Alt + →"         Command="{StaticResource Next}">
+                            <MenuItem.Icon>
+                                <Image Source="forward.png"></Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Upper}"          InputGestureText="Alt + ↑"         Command="{StaticResource Upper}">
+                            <MenuItem.Icon>
+                                <Image Source="upper.png"></Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+                    <MenuItem     Header="{x:Static prop:Resources.Menu_Edit}">
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Cut}"            InputGestureText="Ctrl + X"         Command="{StaticResource Cut}">
+                            <MenuItem.Icon>
+                                <Image Source="cut.png"></Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Copy}"           InputGestureText="Ctrl + C"         Command="{StaticResource Copy}">
+                            <MenuItem.Icon>
+                                <Image Source="copy.png"></Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Duplicate}"      InputGestureText="Ctrl + D"         Command="{StaticResource Duplicate}"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Paste}"          InputGestureText="Ctrl + V"         Command="{StaticResource Paste}">
+                            <MenuItem.Icon>
+                                <Image Source="paste.png"></Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <Separator/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Rename}"         InputGestureText="F2"               Command="{StaticResource Rename}">
+                            <MenuItem.Icon>
+                                <Image Source="rename.png"></Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_Delete}"         InputGestureText="Delete"           Command="{StaticResource Delete}">
+                            <MenuItem.Icon>
+                                <Image Source="delete.png"></Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
                         <Separator/>
                         <MenuItem Header="{x:Static prop:Resources.Menu_SelectAll}"      InputGestureText="Ctrl + A"         Click="SelectAll"/>
                         <MenuItem Header="{x:Static prop:Resources.Menu_CancelSelected}" InputGestureText="Esc"              Click="CancelSelected"/>
@@ -132,7 +183,7 @@
                             <MenuItem Header="{x:Static prop:Resources.Menu_TransmissionTools}" Click="TransmissionToolsToggle" Name="TransmissionToolsMenu"/>
                             <MenuItem Header="{x:Static prop:Resources.Menu_EditTools}"         Click="EditToolsToggle"         Name="EditToolsMenu"/>
                         </MenuItem>
-                        <MenuItem     Header="详细信息(_D)" Name="HeaderMenu" ItemsSource="{StaticResource HeaderMenuItems}">
+                        <MenuItem     Header="{x:Static prop:Resources.Menu_Details}" Name="HeaderMenu" ItemsSource="{StaticResource HeaderMenuItems}">
                             <MenuItem.ItemContainerStyle>
                                 <Style TargetType="MenuItem">
                                     <EventSetter Event="Click" Handler="HeaderToggle"/>
@@ -141,10 +192,10 @@
                         </MenuItem>
                         <MenuItem Header="{x:Static prop:Resources.Menu_TaskList}"          Click="TaskListToggle"          Name="TaskListBoxMenu"/>
                     </MenuItem>
-                    <MenuItem     Header="{x:Static prop:Resources.Menu_Help}" Visibility="Collapsed">
-                        <MenuItem Header="{x:Static prop:Resources.Menu_About}"/>
-                        <MenuItem Header="{x:Static prop:Resources.Menu_CheckUpdate}"/>
-                        <MenuItem Header="{x:Static prop:Resources.Menu_HowToUse}"/>
+                    <MenuItem     Header="{x:Static prop:Resources.Menu_Help}">
+                        <MenuItem Header="{x:Static prop:Resources.Menu_About}" Click="Menu_About_Click"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_CheckUpdate}" Visibility="Collapsed"/>
+                        <MenuItem Header="{x:Static prop:Resources.Menu_HowToUse}" Visibility="Collapsed"/>
                     </MenuItem>
                 </Menu>
                 <ToolBarTray Orientation="Horizontal" SnapsToDevicePixels="True" x:Name="ToolBarDock">
@@ -177,7 +228,7 @@
                         <Separator/>
                         <ToolBarPanel Orientation="Horizontal" ToolBar.OverflowMode="Never">
                             <Button x:Name="ReflushButton" Command="{StaticResource Reflush}"   Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static prop:Resources.Button_Reflush}">
-                                <Image Source="reflush.png" Style="{DynamicResource ToolBarButtonImage}"/>
+                                <Image Source="{DynamicResource ReflushImg}" Style="{DynamicResource ToolBarButtonImage}" Name="reflushbuttonimg"/>
                             </Button>
                         </ToolBarPanel>
                         <ToolBarOverflowPanel ToolBar.OverflowMode="Always">
@@ -296,14 +347,34 @@
                 <ContextMenu x:Key="RowContextMenu">
                     <MenuItem Header="{x:Static prop:Resources.Menu_Open}"      Command="{StaticResource Enter}"/>
                     <Separator/>
-                    <MenuItem Header="{x:Static prop:Resources.Menu_Download}"  Command="{StaticResource Download}"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Download}"  Command="{StaticResource Download}">
+                        <MenuItem.Icon>
+                            <Image Source="download.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
                     <Separator/>
-                    <MenuItem Header="{x:Static prop:Resources.Menu_Cut}"       Command="{StaticResource Cut}"/>
-                    <MenuItem Header="{x:Static prop:Resources.Menu_Copy}"      Command="{StaticResource Copy}"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Cut}"       Command="{StaticResource Cut}">
+                        <MenuItem.Icon>
+                            <Image Source="cut.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Copy}"      Command="{StaticResource Copy}">
+                        <MenuItem.Icon>
+                            <Image Source="copy.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
                     <MenuItem Header="{x:Static prop:Resources.Menu_Duplicate}" Command="{StaticResource Duplicate}"/>
                     <Separator/>
-                    <MenuItem Header="{x:Static prop:Resources.Menu_Rename}"    Command="{StaticResource Rename}"/>
-                    <MenuItem Header="{x:Static prop:Resources.Menu_Delete}"    Command="{StaticResource Delete}"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Rename}"    Command="{StaticResource Rename}">
+                        <MenuItem.Icon>
+                            <Image Source="rename.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Delete}"    Command="{StaticResource Delete}">
+                        <MenuItem.Icon>
+                            <Image Source="delete.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </ContextMenu>
                 <Style TargetType="DataGridRow">
                     <EventSetter Event="MouseDoubleClick" Handler="DataGridRow_MouseDoubleClick"/>
@@ -356,15 +427,27 @@
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu Opened="Menu_Browse_Opened">
-                    <MenuItem Header="{x:Static prop:Resources.Menu_Upload}"              Command="{StaticResource Upload}"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Upload}"              Command="{StaticResource Upload}">
+                        <MenuItem.Icon>
+                            <Image Source="upload.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
                     <Separator/>
                     <MenuItem Header="{x:Static prop:Resources.Menu_Elevation}"           Command="{StaticResource Root}"         x:Name="Context_Elevation"/>
                     <MenuItem Header="{x:Static prop:Resources.Menu_Deauthorization}"     Command="{StaticResource Unroot}"       x:Name="Context_Deauthorization"/>
                     <Separator/>
-                    <MenuItem Header="{x:Static prop:Resources.Menu_Reflush}"             Command="{StaticResource Reflush}"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Reflush}"             Command="{StaticResource Reflush}">
+                        <MenuItem.Icon>
+                            <Image Source="reflush.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
                     <MenuItem Header="{x:Static prop:Resources.Menu_ForcedReflush}"       Command="{StaticResource ForceReflush}" x:Name="Context_ForcedReflush" Visibility="Collapsed"/>
                     <Separator/>
-                    <MenuItem Header="{x:Static prop:Resources.Menu_Paste}"/>
+                    <MenuItem Header="{x:Static prop:Resources.Menu_Paste}">
+                        <MenuItem.Icon>
+                            <Image Source="paste.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
                     <MenuItem Header="{x:Static prop:Resources.Menu_New}">
                         <MenuItem Header="{x:Static prop:Resources.NewDir}"               Command="{StaticResource CreateDir}"/>
                         <MenuItem Header="{x:Static prop:Resources.NewFile}"              Command="{StaticResource CreateFile}"/>
