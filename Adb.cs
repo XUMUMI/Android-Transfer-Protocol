@@ -33,6 +33,7 @@ namespace Android_Transfer_Protocol
         private const string PULL = "pull";
         private const string REMOUNT = "remount";
         private const string ROOT = "root";
+        private const string ROOT_PATH = "/";
         private const string TOUCH = "touch";
         private const string UNROOT = "unroot";
 
@@ -56,7 +57,7 @@ namespace Android_Transfer_Protocol
 
 
         /* 路径纪录 */
-        public static string Path { get; private set; } = "/";
+        public static string Path { get; private set; } = ROOT_PATH;
         private static readonly List<string> PathHistory = new List<string>();
         private static int Step = 0;
 
@@ -67,14 +68,15 @@ namespace Android_Transfer_Protocol
         public static Device CurrentDevice { get; private set; }
         private static int ColCount;
 
-        public static void ChangeDevice(Device device)
+        public static void ChangeDevice(Device device, string path = null)
         {
             Reset();
+            if (!string.IsNullOrEmpty(path)) Path = path;
             CurrentDevice = device ?? throw new ArgumentNullException(nameof(device));
-            if(CheckPath()) ColCount = new Regex("[\\s]+").Replace(Ls("/")[RESULT].Split('\n')[1], " ").Split(' ').Count();
+            if(CheckPath()) ColCount = new Regex("[\\s]+").Replace(Ls(ROOT_PATH)[RESULT].Split('\n')[1], " ").Split(' ').Count();
         }
 
-        /* 状态处理 action */
+        /* 状态处理 Action */
         public static Action<string> AddStatus { private get; set; } = null;
         public static Action<string> RmStatus { private get; set; } = null;
         private static void SetStatus(string message) => AddStatus?.Invoke(message);
@@ -137,12 +139,7 @@ namespace Android_Transfer_Protocol
                 Exec($"-s {CurrentDevice.UsbSerialNum} {ROOT}");
                 Exec($"-s {CurrentDevice.UsbSerialNum} {REMOUNT}");
                 is_rooted = CheckRoot(CurrentDevice);
-                if (is_rooted)
-                {
-                    string path = Path;
-                    ChangeDevice(CurrentDevice);
-                    Path = path;
-                }
+                if (is_rooted) ChangeDevice(CurrentDevice);
             }
             return is_rooted;
         }
@@ -155,12 +152,7 @@ namespace Android_Transfer_Protocol
             {
                 Exec($"-s {CurrentDevice.UsbSerialNum} {UNROOT}");
                 is_rooted = CheckRoot(CurrentDevice);
-                if (!is_rooted)
-                {
-                    string path = Path;
-                    ChangeDevice(CurrentDevice);
-                    Path = path;
-                }
+                if (!is_rooted) ChangeDevice(CurrentDevice);
             }
             return !is_rooted;
         }
@@ -286,7 +278,7 @@ namespace Android_Transfer_Protocol
         private static string[] Ls(string path) => Shell($"{LS} {FileNameEscape(path)}");
 
         /**<summary>检测路径是否存在</summary>**/
-        public static bool CheckPath(string path = "/") => !string.IsNullOrEmpty(Ls(path)[RESULT]);
+        public static bool CheckPath(string path = ROOT_PATH) => !string.IsNullOrEmpty(Ls(path)[RESULT]);
 
         /**<summary>检测识别是否获得 Root 权限</summary>**/
         public static bool CheckRoot(Device device) => Exec($"-s {device.UsbSerialNum} {SHELL} {GET_USER}")[RESULT].Replace("\n", string.Empty).Equals(ROOT);
@@ -378,7 +370,7 @@ namespace Android_Transfer_Protocol
         }
 
         /**<summary>传入一个文件列表和路径, 该函数可以对文件列表进行赋值, 如有错误将返回错误信息</summary>**/
-        private static string GetFilesList(ref ObservableCollection<AFile> files_list, string path = "/")
+        private static string GetFilesList(ref ObservableCollection<AFile> files_list, string path = ROOT_PATH)
         {
             SetStatus($"{Properties.Resources.Reading} {path}");
             string ret = null;
@@ -428,7 +420,7 @@ namespace Android_Transfer_Protocol
         private static void CleanNextHistory(int start_index) => PathHistory.RemoveRange(start_index, PathHistory.Count - start_index);
 
         /**<summary>打开文件列表, 传入一个已初始化的文件列表和路径, 该函数可以对文件列表进行赋值, 如有错误将返回错误信息</summary>**/
-        public static string OpenFilesList(ref ObservableCollection<AFile> files_list, string path = "/")
+        public static string OpenFilesList(ref ObservableCollection<AFile> files_list, string path = ROOT_PATH)
         {
             string error_message = GetFilesList(ref files_list, path);
             if (!string.IsNullOrEmpty(error_message)) return error_message;
@@ -670,7 +662,7 @@ namespace Android_Transfer_Protocol
         private static void Reset()
         {
             FlushCache();
-            Path = "/";
+            Dictionary<string, Configure.DeviceProp> DeviceProp = Configure.Configurer.conf.Device;
             PathHistory.Clear();
             Step = 0;
             CurrentDevice = null;

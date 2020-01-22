@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -66,7 +67,6 @@ namespace Android_Transfer_Protocol
         /**<summary>直接刷新设备列表</summary>**/
         private void Reflush_Devices_List_Execute(object sender, ExecutedRoutedEventArgs e) => Reflush();
 
-
         /***** 添加设备 *****/
 
         /**<summary>添加设备事件</summary>**/
@@ -77,14 +77,27 @@ namespace Android_Transfer_Protocol
             Reflush();
         }
 
-
         /***** 选中设备 *****/
         private bool Opening = false;
         private void OpenDevice()
         {
             if (CurrentDevice == null || Opening) return;
             Opening = true;
-            Adb.ChangeDevice(CurrentDevice);
+
+            Dictionary<string, Configure.DeviceProp> DevicesProp = Configure.Configurer.conf.Device;
+            Configure.DeviceProp DeviceProp;
+            if (!DevicesProp.ContainsKey(CurrentDevice.UsbSerialNum))
+            {
+                DevicesProp.Add(CurrentDevice.UsbSerialNum, new Configure.DeviceProp { Mod = CurrentDevice.Model });
+            }
+            DeviceProp = DevicesProp[CurrentDevice.UsbSerialNum];
+            if (!DeviceProp.Mod.Equals(CurrentDevice.Model))
+            {
+                DeviceProp.Mod = CurrentDevice.Model;
+                DeviceProp.Path = "/";
+            }
+            Adb.ChangeDevice(CurrentDevice, DeviceProp.Path);
+
             if (Adb.CheckPath())
             {
                 new FileManager().Show();

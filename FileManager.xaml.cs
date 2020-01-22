@@ -217,7 +217,8 @@ namespace Android_Transfer_Protocol
                 {
                     DataGridColumnToggle(col, ColHeaderConf[header].Visible);
                     col.DisplayIndex = ColHeaderConf[header].index;
-                } else DataGridColumnToggle(col);
+                    col.Width = new DataGridLength(ColHeaderConf[header].Width);
+                }
             }
             DataGridColumnToggle(FileNameCol, true);
         }
@@ -231,14 +232,16 @@ namespace Android_Transfer_Protocol
                 {
                     ColHeaderConf[header].Visible = col.Visibility == Visibility.Visible;
                     ColHeaderConf[header].index = col.DisplayIndex;
+                    ColHeaderConf[header].Width = col.Width.DisplayValue;
                 }
                 else
                 {
                     ColHeaderConf.Add(header, new ColHeaderProp
                     {
                         index = col.DisplayIndex,
-                        Visible = col.Visibility == Visibility.Visible
-                    });
+                        Visible = col.Visibility == Visibility.Visible,
+                        Width = col.Width.DisplayValue
+                });
                 }
             }
         }
@@ -439,13 +442,14 @@ namespace Android_Transfer_Protocol
             if (string.IsNullOrEmpty(NewName)) file.Name = NewName = OldName;
             /* 同名无需操作 */
             if (NewName == OldName) return;
-            /* 如果没出错 */
-            if (!ShowErrMessage(Adb.Rename(NewName, OldName))) file.Name = NewName;
-            else file.Name = OldName;
-
+            bool result = ShowErrMessage(Adb.Rename(NewName, OldName));
+            /* 更新列表 */
+            ForceReflush();
+            string filename = result ? OldName : NewName;
+            /* 选中被修改的文件 */
+            FileList.SelectedItem = FileList.Items.Cast<AFile>().First(new_file => new_file.Name.ToString().Equals(filename));
             /* 清空新文件名缓存 */
             NewName = null;
-            Reflush();
         }
 
         /**<summary>开始重命名</summary>**/
@@ -702,7 +706,10 @@ namespace Android_Transfer_Protocol
             if (sw != null) col.Visibility = (bool)sw ? Visibility.Visible : Visibility.Collapsed;
             else col.Visibility = col.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
             bool status = col.Visibility == Visibility.Visible;
-            (Resources["HeaderContextMenu"] as ContextMenu).Items.Cast<MenuItem>().First(menu => menu.Header == col.Header).IsChecked = status;
+            ContextMenu HeaderContextMenu = Resources["HeaderContextMenu"] as ContextMenu;
+            MenuItem HeaderContextMenuItem = HeaderContextMenu.Items.Cast<MenuItem>().First(menu => menu.Header == col.Header);
+            MenuItem HeaderMenuItem = HeaderMenu.Items.Cast<MenuItem>().First(menu => menu.Header == col.Header);
+            HeaderContextMenuItem.IsChecked = HeaderMenuItem.IsChecked = status;
             return status;
         }
 
@@ -813,6 +820,7 @@ namespace Android_Transfer_Protocol
         {
             SaveFileListHeader();
             SaveToolBar();
+            Configurer.conf.Device[Adb.CurrentDevice.UsbSerialNum].Path = Adb.Path;
             if (!ClosingRequest()) e.Cancel = true;
             else new DeviceChoose().Show();
         }

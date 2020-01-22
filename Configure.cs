@@ -62,6 +62,7 @@ namespace Android_Transfer_Protocol.Configure
     public class Conf
     {
         public ShowProp Show = new ShowProp();
+        public Dictionary<string, DeviceProp> Device = new Dictionary<string, DeviceProp>();
     }
     public class ShowProp
     {
@@ -70,10 +71,17 @@ namespace Android_Transfer_Protocol.Configure
         public Dictionary<string, ColHeaderProp> ColHeaderConf = new Dictionary<string, ColHeaderProp>();
     }
 
+    public class DeviceProp
+    {
+        public string Mod = null;
+        public string Path = "/";
+    }
+
     public class ColHeaderProp
     {
         public int index = 0;
         public bool Visible = true;
+        public double Width = 200;
     }
 
     public class WindowProp

@@ -4,10 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:prop="clr-namespace:Android_Transfer_Protocol.Properties"
+        xmlns:collections="clr-namespace:System.Collections;assembly=mscorlib"
         mc:Ignorable="d"
         SizeChanged="Window_SizeChanged"
         Closing="Window_Closing"
-        Title="{x:Static prop:Resources.ATP}" MinHeight="184" MinWidth="322">
+        Title="{x:Static prop:Resources.ATP}"
+        MinHeight="184" MinWidth="322"
+        Height="505" Width="625">
     <Window.Resources>
         <RoutedCommand x:Key="CancelPath"/>
         <RoutedCommand x:Key="Copy"/>
@@ -34,22 +37,23 @@
         <RoutedCommand x:Key="Unroot"/>
         <RoutedCommand x:Key="Upload"/>
         <RoutedCommand x:Key="Upper"/>
-        
-        <ContextMenu x:Key="HeaderContextMenu">
+        <collections:ArrayList x:Key="HeaderMenuItems" x:Shared="false">
+            <MenuItem Header="{x:Static prop:Resources.FileName}"  IsCheckable="True" IsEnabled="False" IsChecked="True"/>
+            <MenuItem Header="{x:Static prop:Resources.Type}"      IsCheckable="True"/>
+            <MenuItem Header="{x:Static prop:Resources.DeviceNum}" IsCheckable="True"/>
+            <MenuItem Header="{x:Static prop:Resources.Link}"      IsCheckable="True"/>
+            <MenuItem Header="{x:Static prop:Resources.Pression}"  IsCheckable="True"/>
+            <MenuItem Header="{x:Static prop:Resources.User}"      IsCheckable="True"/>
+            <MenuItem Header="{x:Static prop:Resources.Group}"     IsCheckable="True"/>
+            <MenuItem Header="{x:Static prop:Resources.Size}"      IsCheckable="True"/>
+            <MenuItem Header="{x:Static prop:Resources.Time}"      IsCheckable="True"/>
+        </collections:ArrayList>
+        <ContextMenu x:Key="HeaderContextMenu" ItemsSource="{StaticResource HeaderMenuItems}">
             <ContextMenu.ItemContainerStyle>
                 <Style TargetType="MenuItem">
                     <EventSetter Event="Click" Handler="HeaderToggle"/>
                 </Style>
             </ContextMenu.ItemContainerStyle>
-            <MenuItem Header="{x:Static prop:Resources.FileName}" IsEnabled="False" IsChecked="True"/>
-            <MenuItem Header="{x:Static prop:Resources.Type}"     />
-            <MenuItem Header="{x:Static prop:Resources.DeviceNum}"/>
-            <MenuItem Header="{x:Static prop:Resources.Link}"     />
-            <MenuItem Header="{x:Static prop:Resources.Pression}" />
-            <MenuItem Header="{x:Static prop:Resources.User}"     />
-            <MenuItem Header="{x:Static prop:Resources.Group}"    />
-            <MenuItem Header="{x:Static prop:Resources.Size}"     />
-            <MenuItem Header="{x:Static prop:Resources.Time}"     />
         </ContextMenu>
     </Window.Resources>
     <Window.CommandBindings>
@@ -128,6 +132,13 @@
                             <MenuItem Header="{x:Static prop:Resources.Menu_TransmissionTools}" Click="TransmissionToolsToggle" Name="TransmissionToolsMenu"/>
                             <MenuItem Header="{x:Static prop:Resources.Menu_EditTools}"         Click="EditToolsToggle"         Name="EditToolsMenu"/>
                         </MenuItem>
+                        <MenuItem     Header="详细信息(_D)" Name="HeaderMenu" ItemsSource="{StaticResource HeaderMenuItems}">
+                            <MenuItem.ItemContainerStyle>
+                                <Style TargetType="MenuItem">
+                                    <EventSetter Event="Click" Handler="HeaderToggle"/>
+                                </Style>
+                            </MenuItem.ItemContainerStyle>
+                        </MenuItem>
                         <MenuItem Header="{x:Static prop:Resources.Menu_TaskList}"          Click="TaskListToggle"          Name="TaskListBoxMenu"/>
                     </MenuItem>
                     <MenuItem     Header="{x:Static prop:Resources.Menu_Help}" Visibility="Collapsed">
@@ -154,7 +165,7 @@
                             <GradientStop Color="#FFF0F0F0"/>
                         </LinearGradientBrush>
                     </ToolBarTray.Background>
-                    <ToolBar Background="{x:Null}" Name="BrowseTools" Visibility="Collapsed">
+                    <ToolBar Background="{x:Null}" Name="BrowseTools">
                         <ToolBarPanel Orientation="Horizontal" ToolBar.OverflowMode="Never">
                             <Button x:Name="BackButton" Command="{StaticResource Last}"         Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static prop:Resources.Button_Back}">
                                 <Image Source="back.png" Style="{DynamicResource ToolBarButtonImage}"/>
@@ -173,7 +184,7 @@
                             <MenuItem Header="{x:Static prop:Resources.HideTools}" Click="BrowseToolsToggle"/>
                         </ToolBarOverflowPanel>
                     </ToolBar>
-                    <ToolBar Background="{x:Null}" Name="TransmissionTools" Visibility="Collapsed">
+                    <ToolBar Background="{x:Null}" Name="TransmissionTools">
                         <ToolBarPanel Orientation="Horizontal" ToolBar.OverflowMode="Never">
                             <Button x:Name="UploadButton" Command="{StaticResource Upload}"     Style="{DynamicResource ToolBarButtonStyle}" ToolTip="{x:Static prop:Resources.Upload}">
                                 <Image Source="upload.png" Style="{DynamicResource ToolBarButtonImage}"/>
@@ -333,13 +344,13 @@
                 </Style>
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="{x:Static prop:Resources.FileName}"  IsReadOnly="True" Binding="{Binding Name}" x:Name="FileNameCol"/>
                 <DataGridTextColumn Header="{x:Static prop:Resources.Type}"      IsReadOnly="True" Binding="{Binding Type}"/>
-                <DataGridTextColumn Header="{x:Static prop:Resources.DeviceNum}" IsReadOnly="True" Binding="{Binding DeviceNum}"/>
-                <DataGridTextColumn Header="{x:Static prop:Resources.Link}"      IsReadOnly="True" Binding="{Binding Link}"/>
-                <DataGridTextColumn Header="{x:Static prop:Resources.Pression}"  IsReadOnly="True" Binding="{Binding Pression}"/>
-                <DataGridTextColumn Header="{x:Static prop:Resources.User}"      IsReadOnly="True" Binding="{Binding User}"/>
-                <DataGridTextColumn Header="{x:Static prop:Resources.Group}"     IsReadOnly="True" Binding="{Binding Group}"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.FileName}"  IsReadOnly="True" Binding="{Binding Name, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" x:Name="FileNameCol"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.DeviceNum}" IsReadOnly="True" Binding="{Binding DeviceNum}" Visibility="Collapsed"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.Link}"      IsReadOnly="True" Binding="{Binding Link}" Visibility="Collapsed"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.Pression}"  IsReadOnly="True" Binding="{Binding Pression}" Visibility="Collapsed"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.User}"      IsReadOnly="True" Binding="{Binding User}" Visibility="Collapsed"/>
+                <DataGridTextColumn Header="{x:Static prop:Resources.Group}"     IsReadOnly="True" Binding="{Binding Group}" Visibility="Collapsed"/>
                 <DataGridTextColumn Header="{x:Static prop:Resources.Size}"      IsReadOnly="True" Binding="{Binding Size}"/>
                 <DataGridTextColumn Header="{x:Static prop:Resources.Time}"      IsReadOnly="True" Binding="{Binding DateTime}"/>
             </DataGrid.Columns>
